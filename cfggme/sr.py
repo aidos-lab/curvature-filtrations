@@ -84,7 +84,7 @@ def prob_two_hop(G, node, node_to_index):
     return values
 
 
-def run_experiment(graphs, curvature_fn, prob_fn, args):
+def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
     """
     Run experiments on a collection of graphs using the provided function.
 
@@ -99,13 +99,6 @@ def run_experiment(graphs, curvature_fn, prob_fn, args):
     Returns:
     tuple: A tuple containing the success rates calculated during the experiment.
     """
-    # Unpacking Args
-    if args:
-        k = args[0]
-        node_level = args[1]
-    else:
-        k = 3
-        node_level = False
 
     for graph in graphs:
         if prob_fn is not None:
@@ -220,7 +213,7 @@ if __name__ == "__main__":
     log.info("Laplacian spectrum")
     log.add()
 
-    e1, e2 = run_experiment(graphs, laplacian_eigenvalues, None, args=[args.k, True])
+    e1, e2 = run_experiment(graphs, laplacian_eigenvalues, None, args.k, True)
 
     rows.append(
         {
@@ -235,7 +228,7 @@ if __name__ == "__main__":
     log.info("Pagerank")
     log.add()
 
-    e1, e2 = run_experiment(graphs, pagerank, None, args=[args.k, True])
+    e1, e2 = run_experiment(graphs, pagerank, None, args.k, True)
 
     rows.append(
         {
@@ -250,7 +243,7 @@ if __name__ == "__main__":
     log.info("Degrees")
     log.add()
 
-    e1, e2 = run_experiment(graphs, degrees, None, args=[args.k, True])
+    e1, e2 = run_experiment(graphs, degrees, None, args.k, True)
 
     rows.append(
         {
@@ -265,7 +258,7 @@ if __name__ == "__main__":
     log.info("Forman--Ricci curvature")
     log.add()
 
-    e1, e2 = run_experiment(graphs, forman_curvature, None, args=[args.k, False])
+    e1, e2 = run_experiment(graphs, forman_curvature, None, args.k, False)
 
     rows.append(
         {
@@ -285,7 +278,7 @@ if __name__ == "__main__":
         log.info(f"Probability measure: {name}")
 
         e1, e2 = run_experiment(
-            graphs, ollivier_ricci_curvature, prob_fn, args=[args.k, False]
+            graphs, ollivier_ricci_curvature, prob_fn, args.k, False
         )
 
         rows.append(
@@ -304,7 +297,7 @@ if __name__ == "__main__":
     log.info("Resistance curvature")
     log.add()
 
-    e1, e2 = run_experiment(graphs, resistance_curvature, None, args=[args.k, False])
+    e1, e2 = run_experiment(graphs, resistance_curvature, None, args.k, False)
 
     rows.append({"name": "Resistance curvature", "raw": [e1], "tda": [e2]})
 
