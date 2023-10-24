@@ -1,6 +1,21 @@
 # cfggme: <u>C</u>urvature <u>F</u>iltrations <u>G</u>raph <u>G</u>enerative <u>M</u>odel <u>E</u>valuation
-This is the official repository for the NeurIPS 2023 paper "Curvature Filtrations for Graph Generative Model Evaluation" 
-https://arxiv.org/abs/2301.12906
+
+[![arXiv](https://img.shields.io/badge/arXiv-2210.00069-b31b1b.svg)](https://arxiv.org/abs/2301.12906)
+
+This is the official repository for the NeurIPS 2023 paper: [Curvature Filtrations for Graph Generative Model Evaluation](https://arxiv.org/abs/2301.12906)
+
+Please consider citing our work! 
+
+```bibtex
+@misc{southern2023curvature,
+      title={Curvature Filtrations for Graph Generative Model Evaluation}, 
+      author={Joshua Southern and Jeremy Wayland and Michael Bronstein and Bastian Rieck},
+      year={2023},
+      eprint={2301.12906},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
 
 # Dependencies
 
@@ -15,17 +30,3 @@ The `example.py` shows an example of how we generate a distance between two dist
 The `sr.py` file recreates the strongly regular graph experiments shown in the paper. 
 
 
-# Citing our work
-
-Please consider citing our work: 
-
-```bibtex
-@misc{southern2023curvature,
-      title={Curvature Filtrations for Graph Generative Model Evaluation}, 
-      author={Joshua Southern and Jeremy Wayland and Michael Bronstein and Bastian Rieck},
-      year={2023},
-      eprint={2301.12906},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}
-```
