@@ -92,9 +92,8 @@ def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
     graphs (list): A list of networkx graphs to be used in the experiment.
     curvature_fn (function): The curvature measure to be applied during the experiment.
     prob_fn (function): The probability function to be used for OR curvature.
-    args (list): [k,node_level]
-        k: maximum expansion dimension
-        node_level: If True, assigns node-level attribute, otherwise assigns edge-based attribute.
+    k: maximum expansion dimension
+    node_level: If True, assigns node-level attribute, otherwise assigns edge-based attribute.
 
     Returns:
     tuple: A tuple containing the success rates calculated during the experiment.
