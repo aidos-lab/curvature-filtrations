@@ -1,6 +1,6 @@
 # cfggme: <u>C</u>urvature <u>F</u>iltrations <u>G</u>raph <u>G</u>enerative <u>M</u>odel <u>E</u>valuation
 
-[![arXiv](https://img.shields.io/badge/arXiv-2210.00069-b31b1b.svg)](https://arxiv.org/abs/2301.12906)
+[![arXiv](https://img.shields.io/badge/arXiv-2210.00069-b31b1b.svg)](https://arxiv.org/abs/2301.12906) ![GitHub contributors](https://img.shields.io/github/contributors/aidos-lab/CFGGME) ![GitHub](https://img.shields.io/github/license/aidos-lab/CFGGME)
 
 This is the official repository for the NeurIPS 2023 paper: [Curvature Filtrations for Graph Generative Model Evaluation](https://arxiv.org/abs/2301.12906)
 
