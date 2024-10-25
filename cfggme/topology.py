@@ -1,4 +1,4 @@
-"""Various utility functions and classes."""
+"""Helper functions for computing persistent homology on graphs."""
 
 import collections
 import multiprocessing
