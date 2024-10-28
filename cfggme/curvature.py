@@ -4,6 +4,7 @@ import methods #seperate python file with the curvature functions
 
 class Curvature:
 
+
     def __init__(self, method="forman_curvature", weight=None, alpha=0.0, prob_fn=None) -> None:
         """Defines the specifications for the desired method of computing curvature in a graph."""
         
@@ -33,7 +34,6 @@ class Curvature:
 
     def transform(self, graph, curvature_values) -> nx.Graph:
         """Assigns the values of the given curvature_values np.array to the respective edges of the given graph."""
-        
         nx.set_edge_attributes(graph, curvature_values, name='curvature')
         return graph
 
@@ -52,3 +52,16 @@ class Curvature:
 
     def generate_persistence_diagram():
         pass
+
+    def __str__(self) -> str:
+        """Return a string representation of the Curvature and any custom attributes."""
+        name = f"Method: {self.method}"
+        if self.weight != None:
+            name += (f"\nCustom Weight Attribute: {self.weight}")
+        if self.alpha != 0.0:
+            name += (f"\nCustom Alpha: {self.alpha}")
+        if self.prob_fn != None:
+            name += (f"\nCustom Probability Function: {self.prob_fn}")
+        return name
+    
+

@@ -23,25 +23,30 @@ def test_defaults():
 
 # Curvature computation tests on ER graphs
 def test_er_forman():
-    obj = Curvature()
     G = nx.erdos_renyi_graph(100, 0.1)
+    obj = Curvature()
     curvature_1 = obj.fit(G)
     curvature_2 = methods.forman_curvature(G)
     assert all(curvature_1 == curvature_2)
 
 def test_er_orc():
-    obj = Curvature(method="ollivier_ricci_curvature")
     G = nx.erdos_renyi_graph(100, 0.1)
+    obj = Curvature(method="ollivier_ricci_curvature")
     curvature_1 = obj.fit(G)
     curvature_2 = methods.ollivier_ricci_curvature(G)
     assert all(curvature_1 == curvature_2)
 
 def test_er_resistance():
-    obj = Curvature(method="resistance_curvature")
     G = nx.erdos_renyi_graph(100, 0.1)
+    obj = Curvature(method="resistance_curvature")
     curvature_1 = obj.fit(G)
     curvature_2 = methods.resistance_curvature(G)
     assert all(curvature_1 == curvature_2)
+
+    # alpha_obj = Curvature(method="resistance_curvature", alpha=0.1)
+    # alpha_1 = alpha_obj.fit(G)
+    # alpha_2 = methods.resistance_curvature(G, alpha=0.1)
+    # assert all(alpha_1 == alpha_2)
 
 
 # Test adapted from Nammu
