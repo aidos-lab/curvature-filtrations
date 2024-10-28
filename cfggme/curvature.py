@@ -11,12 +11,6 @@ class Curvature:
         assert method in ["forman_curvature", "ollivier_ricci_curvature", "resistance_curvature"]
         self.method = method
 
-        # Search through our methods to find the one specified by user
-        curvature_fn = getattr(methods, self.method)
-        # Check that it is callable
-        assert callable(curvature_fn)
-        self.curvature_fn = curvature_fn()
-
         self.weight = weight
         self.alpha = alpha
         self.prob_fn = prob_fn
@@ -24,13 +18,17 @@ class Curvature:
     ## Geometric Section (i.e. computing curvature)
     def fit(self, graph) -> np.array:
         """Computes curvature values for the given graph according to the specifications of the Curvature object."""
-        
+        # Search through our methods to find the one specified by user
+        curvature_fn = getattr(methods, self.method)
+        # Check that function is callable
+        # assert callable(curvature_fn(graph))
+
         if self.method == "ollivier_ricci_curvature":
             # Ollivier Ricci method supports extra inputs
-            return self.curvature_fn(graph, self.alpha, self.weight, self.prob_fn)
+            return curvature_fn(graph, self.alpha, self.weight, self.prob_fn)
         else:
             # Forman and Resistance methods only require graph and optional weight
-            return self.curvature_fn(graph, self.weight)
+            return curvature_fn(graph, self.weight)
         
 
     def transform(self, graph, curvature_values) -> nx.Graph:
