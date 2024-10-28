@@ -1,6 +1,8 @@
 import networkx as nx
 import numpy as np
 import methods #seperate python file with the curvature functions
+import topology
+import gudhi as gd
 
 class Curvature:
 
@@ -45,13 +47,30 @@ class Curvature:
         return fitted_graph
         # streamlined: return self.transform(graph, self.fit(graph))
 
-    # TODO: Topological section
     ## Topological Section (outcome is persistence diagram)
-    def make_filtration():
-        pass
+    def make_landscape(self, graph, exact=True):
+        curvature = self.fit(graph)
+        curvature = {e: c for e, c in zip(graph.edges(), curvature)}
+        nx.set_edge_attributes(graph, curvature, "curvature")
 
-    def generate_persistence_diagram():
-        pass
+        topology.propagate_edge_attribute_to_nodes(graph, "curvature", pooling_fn=lambda x: -1)
+        diagrams = topology.calculate_persistent_homology(graph, k=2)
+
+        if diagrams[1]:
+            p_diagrams = np.concatenate(
+                (np.array(diagrams[0]), np.array(diagrams[1])), axis=0
+            )
+        else:
+            p_diagrams = np.array(diagrams[0])
+
+        p_diagrams[
+            p_diagrams == np.inf
+        ] = 1000  # this is annoying but I have to remove inf values somehow
+
+        LS = gd.representations.Landscape(resolution=1000)
+        landscape = LS.fit_transform([p_diagrams])
+
+        return landscape
 
     def __str__(self) -> str:
         """Return a string representation of the Curvature and any custom attributes."""

@@ -72,3 +72,9 @@ def test_weighted_forman():
     weighted_curvature = unweighted.fit(G)
 
     assert not all(curvature == weighted_curvature)
+
+# Topology basic tests
+def test_make_landscape():
+    G = nx.erdos_renyi_graph(100, 0.1)
+    obj = Curvature()
+    obj.make_landscape(G)
