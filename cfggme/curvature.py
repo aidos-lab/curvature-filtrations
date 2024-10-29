@@ -1,17 +1,23 @@
 import networkx as nx
 import numpy as np
-import methods #seperate python file with the curvature functions
+import methods  # seperate python file with the curvature functions
 import topology
 import gudhi as gd
 
+
 class Curvature:
 
-
-    def __init__(self, method="forman_curvature", weight=None, alpha=0.0, prob_fn=None) -> None:
+    def __init__(
+        self, method="forman_curvature", weight=None, alpha=0.0, prob_fn=None
+    ) -> None:
         """Defines the specifications for the desired method of computing curvature in a graph."""
-        
+
         # Check that curvature method is supported
-        assert method in ["forman_curvature", "ollivier_ricci_curvature", "resistance_curvature"]
+        assert method in [
+            "forman_curvature",
+            "ollivier_ricci_curvature",
+            "resistance_curvature",
+        ]
         self.method = method
 
         self.weight = weight
@@ -32,16 +38,15 @@ class Curvature:
         else:
             # Forman and Resistance methods only require graph and optional weight
             return curvature_fn(graph, self.weight)
-        
 
     def transform(self, graph, curvature_values) -> nx.Graph:
         """Assigns the values of the given curvature_values np.array to the respective edges of the given graph."""
-        nx.set_edge_attributes(graph, curvature_values, name='curvature')
+        nx.set_edge_attributes(graph, curvature_values, name="curvature")
         return graph
 
     def fit_transform(self, graph) -> nx.Graph:
         """Computes the curvature values for the given graph according to the specifications of the Curvature object,
-            and assigns them to their respective edges."""
+        and assigns them to their respective edges."""
         curvature_values = self.fit(graph)
         fitted_graph = self.transform(graph, curvature_values)
         return fitted_graph
@@ -53,7 +58,9 @@ class Curvature:
         curvature = {e: c for e, c in zip(graph.edges(), curvature)}
         nx.set_edge_attributes(graph, curvature, "curvature")
 
-        topology.propagate_edge_attribute_to_nodes(graph, "curvature", pooling_fn=lambda x: -1)
+        topology.propagate_edge_attribute_to_nodes(
+            graph, "curvature", pooling_fn=lambda x: -1
+        )
         diagrams = topology.calculate_persistent_homology(graph, k=2)
 
         if diagrams[1]:
@@ -63,9 +70,9 @@ class Curvature:
         else:
             p_diagrams = np.array(diagrams[0])
 
-        p_diagrams[
-            p_diagrams == np.inf
-        ] = 1000  # this is annoying but I have to remove inf values somehow
+        p_diagrams[p_diagrams == np.inf] = (
+            1000  # this is annoying but I have to remove inf values somehow
+        )
 
         LS = gd.representations.Landscape(resolution=1000)
         landscape = LS.fit_transform([p_diagrams])
@@ -76,11 +83,9 @@ class Curvature:
         """Return a string representation of the Curvature and any custom attributes."""
         name = f"Method: {self.method}"
         if self.weight != None:
-            name += (f"\nCustom Weight Attribute: {self.weight}")
+            name += f"\nCustom Weight Attribute: {self.weight}"
         if self.alpha != 0.0:
-            name += (f"\nCustom Alpha: {self.alpha}")
+            name += f"\nCustom Alpha: {self.alpha}"
         if self.prob_fn != None:
-            name += (f"\nCustom Probability Function: {self.prob_fn}")
+            name += f"\nCustom Probability Function: {self.prob_fn}"
         return name
-    
-

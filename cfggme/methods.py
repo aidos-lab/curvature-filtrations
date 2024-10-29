@@ -248,9 +248,7 @@ def pairwise_resistances(G, weight=None):
     return R, node_to_index
 
 
-def node_resistance_curvature(
-    G, node, weight=None, R=None, node_to_index=None
-):
+def node_resistance_curvature(G, node, weight=None, R=None, node_to_index=None):
     """Calculate Resistance Curvature of a given node in a graph 'G'.
 
     This function calculates the resistance curvature of only

@@ -33,7 +33,9 @@ def create_landscapes_gudhi(curvature_fn, graphs, hom_deg=2, exact=True):
         curvature = {e: c for e, c in zip(graph.edges(), curvature)}
         nx.set_edge_attributes(graph, curvature, "curvature")
 
-        propagate_edge_attribute_to_nodes(graph, "curvature", pooling_fn=lambda x: -1)
+        propagate_edge_attribute_to_nodes(
+            graph, "curvature", pooling_fn=lambda x: -1
+        )
 
         diagrams = calculate_persistent_homology(graph, k=2)
 
@@ -44,9 +46,9 @@ def create_landscapes_gudhi(curvature_fn, graphs, hom_deg=2, exact=True):
         else:
             p_diagrams = np.array(diagrams[0])
 
-        p_diagrams[
-            p_diagrams == np.inf
-        ] = 1000  # this is annoying but I have to remove inf values somehow
+        p_diagrams[p_diagrams == np.inf] = (
+            1000  # this is annoying but I have to remove inf values somehow
+        )
 
         LS = gd.representations.Landscape(resolution=1000)
         landscape = LS.fit_transform([p_diagrams])
@@ -127,7 +129,9 @@ def calculate_persistent_homology(G, k=3):
     diagrams = []
 
     for dimension in range(k + 1):
-        diagram = [(c, d) for dim, (c, d) in persistence_pairs if dim == dimension]
+        diagram = [
+            (c, d) for dim, (c, d) in persistence_pairs if dim == dimension
+        ]
 
         diagrams.append(diagram)
 
