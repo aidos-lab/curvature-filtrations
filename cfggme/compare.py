@@ -1,7 +1,5 @@
-import networkx as nx
 import numpy as np
-from curvature import Curvature
-import topology
+from cfggme.curvature import Curvature
 
 
 class GraphComparator:

@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
-import methods  # seperate python file with the curvature functions
-import topology
+import cfggme.methods as methods  # seperate python file with the curvature functions
+import cfggme.topology as topology
 import gudhi as gd
 
 

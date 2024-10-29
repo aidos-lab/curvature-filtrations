@@ -2,7 +2,6 @@
 
 import collections
 import multiprocessing
-import warnings
 
 import gudhi as gd
 import gudhi.representations
