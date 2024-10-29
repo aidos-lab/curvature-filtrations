@@ -32,9 +32,7 @@ def create_landscapes_gudhi(curvature_fn, graphs, hom_deg=2, exact=True):
         curvature = {e: c for e, c in zip(graph.edges(), curvature)}
         nx.set_edge_attributes(graph, curvature, "curvature")
 
-        propagate_edge_attribute_to_nodes(
-            graph, "curvature", pooling_fn=lambda x: -1
-        )
+        propagate_edge_attribute_to_nodes(graph, "curvature", pooling_fn=lambda x: -1)
 
         diagrams = calculate_persistent_homology(graph, k=2)
 
@@ -61,16 +59,6 @@ def create_landscapes_gudhi(curvature_fn, graphs, hom_deg=2, exact=True):
     )
     landscapes = [x for x in all_landscapes if x is not None]
     return landscapes
-
-
-def average_landscape(landscapes, exact=True):
-    assert exact, "Only exact landsape computations supported at the moment."
-
-    sum_ = landscapes[0]
-    N = len(landscapes)
-    for landscape in landscapes[1:]:
-        sum_ += landscape
-    return sum_.__truediv__(N)
 
 
 def curvature_filtration_distance(
@@ -128,9 +116,7 @@ def calculate_persistent_homology(G, k=3):
     diagrams = []
 
     for dimension in range(k + 1):
-        diagram = [
-            (c, d) for dim, (c, d) in persistence_pairs if dim == dimension
-        ]
+        diagram = [(c, d) for dim, (c, d) in persistence_pairs if dim == dimension]
 
         diagrams.append(diagram)
 
