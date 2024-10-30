@@ -1,13 +1,12 @@
 import numpy as np
 import networkx as nx
-from cfggme.geometry.curvature import Curvature
-from cfggme.topology.distances import TopologicalDistance
+from cfggme.kilt import KILT
+from cfggme.topology.distances import TopologicalDistance, supported_distances
 from cfggme.topology.ph import GraphHomology
-from abc import ABC, abstractmethod
 from typing import List, Tuple, Optional, Union, Dict
 
 
-class Comparator(ABC):
+class Comparator:
     """Compare Graphs or Graph Distributions using Curvature Filtrations as in https://openreview.net/forum?id=Dt71xKyabn.
 
 
@@ -24,45 +23,29 @@ class Comparator(ABC):
     ) -> None:
 
         # Initialize Curvature and GraphHomology objects
-        self.curv = Curvature(measure, weight, alpha, prob_fn)
+        self.kilt = KILT(measure, weight, alpha, prob_fn)
         self.ph = GraphHomology(homology_dims, measure)
 
         self.descriptor1 = None
         self.descriptor2 = None
 
-    @abstractmethod
-    def curvature(self, G1, G2):
-        """Geometry: How our comparators should compute curvature."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
+    def curvature_filtration(self, G):
+        graph_iterable = self._format_inputs(G)
+        return [self._kilterator(g) for g in graph_iterable]
 
-    @abstractmethod
-    def filtration(self, G1, G2):
-        """Topology: Compute Filtrations."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
-
-    @abstractmethod
-    def configure_distance(
-        self, metric="landscape_distance"
-    ) -> TopologicalDistance:
-        """Distance: Compute distance between topological descriptors."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
-
-    def fit(self, G1, G2, metric="landscape_distance", **kwargs) -> None:
+    def fit(self, G1, G2, metric="landscape", **kwargs) -> None:
         """Initializes a Topological Distance object and computes the topological descriptors that will be compared."""
+        self.distance = self._setup_distance(metric)
 
-        self.curvature(G1, G2)
-        self.filtration(G1, G2)
-        self.distance = self.configure_distance(metric)
+        pd_1 = self.curvature_filtration(G1)
+        pd_2 = self.curvature_filtration(G2)
 
-        # Figure out whether I am a distribution or a single graph and then configure the Distance object accordingly
+        self.distance(
+            pd_1,
+            pd_2,
+        )  # This should error if theres no distribution support
 
-        pass
+        self.descriptor1, self.descriptor2 = self.distance.fit(**kwargs)
 
     def transform(self) -> float:
         """Returns a distance! Yay! Done!"""
@@ -72,96 +55,35 @@ class Comparator(ABC):
 
         return self.distance.transform(self.descriptor1, self.descriptor2)
 
-    def fit_transform(self, metric, **kwargs) -> float:
+    def fit_transform(self, G1, G2, metric="landscape") -> float:
 
-        self.fit()
+        self.fit(G1, G2, metric)
         return self.transform()
 
+    def _setup_distance(self, metric) -> TopologicalDistance:
 
-class DistributionComparator(Comparator):
-    """Class for comparing the curvature distribution between two lists of graphs"""
+        # Check that the metric is supported
+        assert (
+            metric in supported_distances
+        ), f"Metric {metric} is not supported."
 
-    def __init__(
-        self,
-        graphs1: List[nx.Graph],
-        graphs2: List[nx.Graph],
-        method: str = "forman_curvature",
-        weight=None,
-        alpha=0.0,
-        prob_fn=None,
-    ) -> None:
-        """Initializes DistributionComparator object."""
-        super().__init__(method, weight, alpha, prob_fn)
-        # TODO: check whether input is a list of graphs or single graph -> suggest GraphComparator if necessary
-        self.graphs1 = graphs1
-        self.graphs2 = graphs2
+        return supported_distances[metric]
 
-        self.curvatures1 = []
-        self.curvatures2 = []
+    def _kilterator(self, graph):
+        return self.kilt.fit_transform(graph, self.homology_dims)
 
-        self.diagrams1 = []
-        self.diagrams2 = []
+    def _format_inputs(self, G):
+        if self._is_distribution(G):
+            return G
+        elif self._is_graph(G):
+            return [G]
+        else:
+            raise ValueError(
+                "Input must be a networkx.Graph or a list of networkx.Graphs"
+            )
 
-    def curvature(self, G1, G2):
-        # TODO: parallelize this
-        self.graphs1 = [self._curvature_iterator(G) for G in G1]
-        self.graphs2 = [self._curvature_iterator(G) for G in G2]
+    def _is_distribution(self, G):
+        return isinstance(G, list)
 
-    def filtration(self, G1, G2):
-        """Topology: Compute Filtrations."""
-        for G in G1:
-            self.diagrams1.append(self.ph.calculate_persistent_homology(G))
-        for G in G2:
-            self.diagrams2.append(self.ph.calculate_persistent_homology(G))
-
-    def configure_distance(
-        self, metric="landscape_distance"
-    ) -> TopologicalDistance:
-        """Distance: Compute distance between topological descriptors."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
-
-    def _curvature_iterator(self, graph):
-        curvature = self.curv.curvature(graph)
-        nx.set_edge_attributes(graph, curvature, self.curv.measure)
-        return graph
-
-
-class GraphComparator(Comparator):
-    """Class for comparing the curvature between two graphs."""
-
-    def __init__(
-        self,
-        graph1,
-        graph2,
-        method="forman_curvature",
-        weight=None,
-        alpha=0.0,
-        prob_fn=None,
-    ) -> None:
-        """Initializes GraphComparator object."""
-        super().__init__(method, weight, alpha, prob_fn)
-        # TODO: check whether input is a list of graphs or single graph -> suggest DistributionComparator if necessary
-        self.graph1 = graph1
-        self.graph2 = graph2
-
-    def curvature(self, G1, G2):
-        """Geometry: How our comparators should compute curvature."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
-
-    def filtration(self, G1, G2):
-        """Topology: Compute Filtrations."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
-
-    def configure_distance(
-        self, metric="landscape_distance"
-    ) -> TopologicalDistance:
-        """Distance: Compute distance between topological descriptors."""
-        raise NotImplementedError(
-            "This method must be implemented in a subclass."
-        )
+    def _is_graph(self, G):
+        return isinstance(G, nx.Graph)
