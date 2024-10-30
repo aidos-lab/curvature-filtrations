@@ -1,4 +1,4 @@
-from cfggme.curvature import Curvature
+from cfggme.kilt import Curvature
 from cfggme.compare import GraphComparator
 import networkx as nx
 import numpy as np

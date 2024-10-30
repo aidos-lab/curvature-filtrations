@@ -1,7 +1,7 @@
-from cfggme.curvature import Curvature
+from cfggme.kilt import Curvature
 import networkx as nx
 import numpy as np
-import cfggme.methods as methods
+import cfggme.geometry.measures as measures
 
 
 def test_pytest():
@@ -29,7 +29,7 @@ def test_er_forman():
     G = nx.erdos_renyi_graph(100, 0.1)
     obj = Curvature()
     curvature_1 = obj.fit(G)
-    curvature_2 = methods.forman_curvature(G)
+    curvature_2 = measures.forman_curvature(G)
     assert all(curvature_1 == curvature_2)
 
 
@@ -37,7 +37,7 @@ def test_er_orc():
     G = nx.erdos_renyi_graph(100, 0.1)
     obj = Curvature(method="ollivier_ricci_curvature")
     curvature_1 = obj.fit(G)
-    curvature_2 = methods.ollivier_ricci_curvature(G)
+    curvature_2 = measures.ollivier_ricci_curvature(G)
     assert all(curvature_1 == curvature_2)
 
 
@@ -45,7 +45,7 @@ def test_er_resistance():
     G = nx.erdos_renyi_graph(100, 0.1)
     obj = Curvature(method="resistance_curvature")
     curvature_1 = obj.fit(G)
-    curvature_2 = methods.resistance_curvature(G)
+    curvature_2 = measures.resistance_curvature(G)
     assert all(curvature_1 == curvature_2)
 
     # alpha_obj = Curvature(method="resistance_curvature", alpha=0.1)
