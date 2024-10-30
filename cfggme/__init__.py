@@ -1,2 +1,2 @@
-from cfggme.compare import GraphComparator, DistributionComparator
-from cfggme.geometry.curvature import Curvature
+from cfggme.compare import Comparator
+from cfggme.kilt import KILT
