@@ -44,32 +44,9 @@ class KILT:
             name += f"\nCustom Probability Function: {self.prob_fn}"
         return name
 
-    ## Geometric Section (i.e. computing curvature)
-    def fit(self, graph) -> None:
-        """Computes curvature values for the given graph according to the specifications of the Curvature object."""
-        # Search through our measures to find the one specified by user
-        edge_curvatures = self._compute_curvature(graph)
-        self.G = nx.set_edge_attributes(
-            graph.copy(), edge_curvatures, name=self.measure
-        )
-
-    def transform(
-        self,
-        graph,
-        homology_dims: Optional[List[int]] = [0, 1],
-    ) -> List[List[Tuple[float, float]]]:  # TODO: clean up types
-        ph = GraphHomology(homology_dims, self.measure)
-        return ph.calculate_persistent_homology(graph)
-
-    def fit_transform(
-        self, graph, homology_dims
-    ) -> List[List[Tuple[float, float]]]:
-        """Computes the curvature values for the given graph according to the specifications of the Curvature object,
-        and assigns them to their respective edges."""
-        if self.G is None:
-            self.fit(graph)
-
-        return self.transform(self.G, homology_dims)
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Geometry                                                 │
+    #  ╰──────────────────────────────────────────────────────────╯
 
     def _compute_curvature(self, graph) -> np.array:
         curvature_fn = getattr(measures, self.measure)
@@ -79,3 +56,35 @@ class KILT:
         else:
             # Forman and Resistance measures only require graph and optional weight
             return curvature_fn(graph, self.weight)
+
+    def fit(self, graph) -> None:
+        """Computes curvature values for the given graph according to the specifications of the Curvature object."""
+        # Search through our measures to find the one specified by user
+        edge_curvatures = self._compute_curvature(graph)
+        self.G = nx.set_edge_attributes(
+            graph.copy(), edge_curvatures, name=self.measure
+        )
+
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Topology                                                 │
+    #  ╰──────────────────────────────────────────────────────────╯
+    def transform(
+        self,
+        graph,
+        homology_dims: Optional[List[int]] = [0, 1],
+    ) -> List[List[Tuple[float, float]]]:  # TODO: clean up types
+        ph = GraphHomology(homology_dims, self.measure)
+        return ph.calculate_persistent_homology(graph)
+
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Both: Curvature Filtration!                              │
+    #  ╰──────────────────────────────────────────────────────────╯
+    def fit_transform(
+        self, graph, homology_dims
+    ) -> List[List[Tuple[float, float]]]:
+        """Computes the curvature values for the given graph according to the specifications of the Curvature object,
+        and assigns them to their respective edges."""
+        if self.G is None:
+            self.fit(graph)
+
+        return self.transform(self.G, homology_dims)

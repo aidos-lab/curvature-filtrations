@@ -58,7 +58,7 @@ class LandscapeDistance(TopologicalDistance):
     def __init__(self, diagram1, diagram2, resolution=1000) -> None:
         super().__init__(diagram1, diagram2)
         self.resolution = resolution
-        self.landscape = gd.representations.Landscape(resolution=resolution)
+        self.LS = gd.representations.Landscape(resolution=resolution)
 
     def distrubution_support() -> bool:
         return True
@@ -68,9 +68,10 @@ class LandscapeDistance(TopologicalDistance):
 
         landscapes1 = self._pd_to_landscape(self.diagram1)
         landscapes2 = self._pd_to_landscape(self.diagram2)
-        return self._average_landscape(landscapes1), self._average_landscape(
-            landscapes2
-        )
+
+        avg1 = self._average_landscape(landscapes1)
+        avg2 = self._average_landscape(landscapes2)
+        return avg1, avg2
 
     def transform(
         self, landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
@@ -92,7 +93,7 @@ class LandscapeDistance(TopologicalDistance):
         for diagram in diagrams:
             landscape = {}
             for dim, points in diagram.items():
-                landscape[dim] = self.landscape.fit_transform([points])[0]
+                landscape[dim] = self.LS.fit_transform([points])[0]
             landscapes.append(landscape)
         return landscapes
 
@@ -120,6 +121,7 @@ class LandscapeDistance(TopologicalDistance):
 
 
 # TODO: Implement other distances
+# Some can support distributions!
 class ImageDistance(TopologicalDistance):
     pass
 

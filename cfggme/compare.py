@@ -7,7 +7,7 @@ from typing import List, Tuple, Optional, Union, Dict
 
 
 class Comparator:
-    """Compare Graphs or Graph Distributions using Curvature Filtrations as in https://openreview.net/forum?id=Dt71xKyabn.
+    """Compare Graphs or Graph Distributions using Curvature Filtrations as in https://openreview.net/forum?id=Dt71xKyabn using `KILT`.
 
 
     TODO: Add more details about the class here and brief description of how we combine geometry and topology, along with normal documentation. Include high level description of Subclasses.
@@ -29,16 +29,16 @@ class Comparator:
         self.descriptor1 = None
         self.descriptor2 = None
 
-    def curvature_filtration(self, G):
-        graph_iterable = self._format_inputs(G)
-        return [self._kilterator(g) for g in graph_iterable]
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Key Members: Fit and Transform                           │
+    #  ╰──────────────────────────────────────────────────────────╯
 
     def fit(self, G1, G2, metric="landscape", **kwargs) -> None:
         """Initializes a Topological Distance object and computes the topological descriptors that will be compared."""
         self.distance = self._setup_distance(metric)
 
-        pd_1 = self.curvature_filtration(G1)
-        pd_2 = self.curvature_filtration(G2)
+        pd_1 = self._curvature_filtration(G1)
+        pd_2 = self._curvature_filtration(G2)
 
         self.distance(
             pd_1,
@@ -60,6 +60,10 @@ class Comparator:
         self.fit(G1, G2, metric)
         return self.transform()
 
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Helper Functions                                         │
+    #  ╰──────────────────────────────────────────────────────────╯
+
     def _setup_distance(self, metric) -> TopologicalDistance:
 
         # Check that the metric is supported
@@ -69,21 +73,28 @@ class Comparator:
 
         return supported_distances[metric]
 
+    def _curvature_filtration(self, G):
+        graph_iterable = self._format_inputs(G)
+        return [self._kilterator(g) for g in graph_iterable]
+
     def _kilterator(self, graph):
         return self.kilt.fit_transform(graph, self.homology_dims)
 
-    def _format_inputs(self, G):
-        if self._is_distribution(G):
+    @staticmethod
+    def _format_inputs(G):
+        if KILT._is_distribution(G):
             return G
-        elif self._is_graph(G):
+        elif KILT._is_graph(G):
             return [G]
         else:
             raise ValueError(
                 "Input must be a networkx.Graph or a list of networkx.Graphs"
             )
 
-    def _is_distribution(self, G):
+    @staticmethod
+    def _is_distribution(G):
         return isinstance(G, list)
 
-    def _is_graph(self, G):
+    @staticmethod
+    def _is_graph(G):
         return isinstance(G, nx.Graph)
