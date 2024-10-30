@@ -8,7 +8,8 @@ import cfggme.geometry.measures as measures
 from cfggme.topology.ph import GraphHomology
 
 
-class Curvature:
+class KILT:
+    """Krvature-Informed Links via Topology (KILT) is a class that computes the topological distance between two graphs using curvature as a filtration function."""
 
     def __init__(
         self, measure="forman_curvature", weight=None, alpha=0.0, prob_fn=None
