@@ -4,8 +4,8 @@ import gudhi as gd
 from typing import List, Tuple, Optional
 
 
-import cfggme.geometry.measures as measures
-from cfggme.topology.ph import GraphHomology
+import curvature_filtrations.geometry.measures as measures
+from curvature_filtrations.topology.ph import GraphHomology
 
 
 class KILT:
