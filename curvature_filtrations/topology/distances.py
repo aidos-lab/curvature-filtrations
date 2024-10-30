@@ -1,73 +1,71 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
-import numpy as np
-from tqdm import tqdm
 import gudhi as gd
 
 
 class TopologicalDistance(ABC):
-    """Abstract class for computing topological distances.
+    """Abstract base class for computing topological distances.
 
-    Takes in two persistence diagrams and handles necessary transformations to be able to use a specific distance function.
+    Takes in two persistence diagrams and handles necessary transformations
+    to compute a specific distance function.
     """
 
-    def __init__(self, diagram1, diagram2, norm) -> None:
+    def __init__(self, diagram1, diagram2, norm=2) -> None:
         super().__init__()
         self.diagram1 = diagram1
         self.diagram2 = diagram2
+        self.norm_order = norm
 
+        # Ensure support for distributions if provided
         if self._is_distribution(diagram1) or self._is_distribution(diagram2):
             assert (
-                self.distrubution_support()
-            ), "Distribution of persistence diagrams is not supported."
-
-        self.norm = norm
+                self.supports_distribution()
+            ), "Distribution of persistence diagrams is not supported by this distance type."
 
     def norm(self, x):
-        return np.linalg.norm(x, ord=self.norm)
+        """Compute norm of a vector x according to the specified order."""
+        return np.linalg.norm(x, ord=self.norm_order)
+
+    @staticmethod
+    def _is_distribution(diagram):
+        """Check if the given diagram is a distribution (i.e., a list of diagrams)."""
+        return isinstance(diagram, list)
 
     @abstractmethod
-    def distrubution_support() -> bool:
-        """Check if the Class supports distributions of persistence diagrams."""
+    def supports_distribution(self) -> bool:
+        """Indicates if the distance type supports distributions of persistence diagrams."""
         raise NotImplementedError
 
     @abstractmethod
-    def fit(self) -> None:
-        """Translate to persistence landscape or average of persistence landscapes.
-
-        This method assigns:
-        self.top_descriptor1
-        self.top_descriptor2
-        """
+    def fit(self):
+        """Convert persistence diagrams to topological descriptors."""
         raise NotImplementedError
 
     @abstractmethod
     def transform(self, descriptor1, descriptor2) -> float:
-        """This method defines how to compute distances between topological descriptors."""
+        """Defines how to compute distances between topological descriptors."""
         raise NotImplementedError
-
-    @staticmethod
-    def _is_distribution(D):
-        return isinstance(D, list)
 
 
 class LandscapeDistance(TopologicalDistance):
-    """Class for computing distances between persistence landscapes."""
+    """Computes distances between persistence landscapes."""
 
-    def __init__(self, diagram1, diagram2, resolution=1000) -> None:
-        super().__init__(diagram1, diagram2)
+    def __init__(self, diagram1, diagram2, norm=2, resolution=1000) -> None:
+        super().__init__(diagram1, diagram2, norm)
         self.resolution = resolution
-        self.LS = gd.representations.Landscape(resolution=resolution)
+        self.landscape_transformer = gd.representations.Landscape(
+            resolution=resolution
+        )
 
-    def distrubution_support() -> bool:
+    def supports_distribution(self) -> bool:
+        """Indicates support for distributions of persistence diagrams."""
         return True
 
     def fit(self):
-        """Fit persistence landscapes for both diagrams and aggregate if they are distributions."""
-
-        landscapes1 = self._pd_to_landscape(self.diagram1)
-        landscapes2 = self._pd_to_landscape(self.diagram2)
+        """Compute and return average persistence landscapes for both diagrams."""
+        landscapes1 = self._convert_to_landscape(self.diagram1)
+        landscapes2 = self._convert_to_landscape(self.diagram2)
 
         avg1 = self._average_landscape(landscapes1)
         avg2 = self._average_landscape(landscapes2)
@@ -76,48 +74,56 @@ class LandscapeDistance(TopologicalDistance):
     def transform(
         self, landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
     ) -> float:
-        """Compute Distance Between Landscapes."""
-        distance = 0.0
+        """Compute the norm-based distance between two persistence landscapes."""
         common_dims = set(landscape1.keys()).intersection(landscape2.keys())
+        difference = self._subtract_landscapes(landscape1, landscape2)
 
-        diff = self._subtract_landscapes(landscape1, landscape2)
-        for dim in common_dims:
-            distance += self.norm(diff[dim])
+        distance = sum(self.norm(difference[dim]) for dim in common_dims)
         return distance
 
-    def _pd_to_landscape(
+    def _convert_to_landscape(
         self, diagrams: List[Dict[int, np.array]]
     ) -> List[Dict[int, np.array]]:
-        """Convert each persistence diagram into a persistence landscape for each dimension."""
+        """Convert each persistence diagram to a persistence landscape for each dimension."""
         landscapes = []
         for diagram in diagrams:
-            landscape = {}
-            for dim, points in diagram.items():
-                landscape[dim] = self.LS.fit_transform([points])[0]
+            landscape = {
+                dim: self.landscape_transformer.fit_transform([points])[0]
+                for dim, points in diagram.items()
+            }
             landscapes.append(landscape)
         return landscapes
 
     @staticmethod
-    def _average_landscape(L: List[Dict[int, np.array]]) -> Dict[int, np.array]:
-        """Compute the average persistence landscape of a list of landscapes."""
-        avg = {}
-        for landscape in L:
+    def _average_landscape(
+        landscapes: List[Dict[int, np.array]]
+    ) -> Dict[int, np.array]:
+        """Compute the average persistence landscape across multiple landscapes."""
+        avg_landscape = {}
+        for landscape in landscapes:
             for dim, values in landscape.items():
-                if dim not in avg:
-                    avg[dim] = np.zeros_like(values)
-                avg[dim] += values
-        for dim in avg:
-            avg[dim] /= len(L)
-        return avg
+                if dim not in avg_landscape:
+                    avg_landscape[dim] = np.zeros_like(values)
+                avg_landscape[dim] += values
+
+        for dim in avg_landscape:
+            avg_landscape[dim] /= len(landscapes)
+        return avg_landscape
 
     @staticmethod
     def _subtract_landscapes(
-        landscapeX: Dict[int, np.array], landscapeY: Dict[int, np.array]
+        landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
     ) -> Dict[int, np.array]:
-        res = dict()
-        for i in landscapeX.keys():
-            res[i] = landscapeX[i] - landscapeY[i]
-        return res
+        """Subtract two landscapes for each common dimension."""
+        return {
+            dim: landscape1[dim] - landscape2[dim] for dim in landscape1.keys()
+        }
+
+
+# Example dictionary to link supported distances
+supported_distances = {
+    "landscape": LandscapeDistance,
+}
 
 
 # TODO: Implement other distances
