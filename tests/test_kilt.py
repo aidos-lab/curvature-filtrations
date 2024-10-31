@@ -62,10 +62,10 @@ class TestKILT:
         assert len(klt.curvature) == len(curvature)
         assert np.array_equal(klt.curvature, curvature)
 
-    def test_kilt_resistance(self, graph):
+    def test_kilt_resistance(self, small_graph):
         klt = KILT(measure="resistance_curvature")
-        klt.fit(graph)
-        curvature = measures.resistance_curvature(graph)
+        klt.fit(small_graph)
+        curvature = measures.resistance_curvature(small_graph)
         assert len(klt.curvature) == len(curvature)
         assert np.array_equal(klt.curvature, curvature)
 
@@ -99,7 +99,21 @@ class TestKILT:
             assert dim in diagram.keys()
             isinstance(diagram[dim], np.ndarray)
 
-    def test_fit_transform(self, graph):
+    def test_fit_transform(self, graph, graph2, small_graph):
         klt = KILT(measure="forman_curvature")
-        diagram = klt.fit_transform(graph)
-        assert isinstance(diagram, dict)
+        diagram1 = klt.fit_transform(graph)
+        curv1 = klt.curvature
+        assert isinstance(diagram1, dict)
+
+        small_diagram = klt.fit_transform(small_graph)
+        small_curv = klt.curvature
+        assert isinstance(small_diagram, dict)
+
+        assert not len(curv1) == len(small_curv)
+
+        diagram2 = klt.fit_transform(graph2)
+        curv2 = klt.curvature
+        assert isinstance(diagram2, dict)
+
+        if len(curv1) == len(curv2):
+            assert not np.array_equal(curv1, curv2)
