@@ -22,7 +22,7 @@ class Comparator:
         weight=None,
         alpha=0.0,
         prob_fn=None,
-        homology_dims: Optional[List[int]] = None,
+        homology_dims: Optional[List[int]] = [0, 1],
     ) -> None:
 
         # Initialize Curvature and GraphHomology objects
@@ -38,14 +38,15 @@ class Comparator:
 
     def fit(self, G1, G2, metric="landscape", **kwargs) -> None:
         """Initializes a Topological Distance object and computes the topological descriptors that will be compared."""
-        self.distance = self._setup_distance(metric)
+        cls = self._setup_distance(metric)
 
         pd_1 = self._curvature_filtration(G1)
         pd_2 = self._curvature_filtration(G2)
 
-        self.distance(
-            pd_1,
-            pd_2,
+        self.distance = cls(
+            diagram1=pd_1,
+            diagram2=pd_2,
+            **kwargs,
         )  # This should error if theres no distribution support
 
         self.descriptor1, self.descriptor2 = self.distance.fit(**kwargs)
@@ -81,13 +82,13 @@ class Comparator:
         return [self._kilterator(g) for g in graph_iterable]
 
     def _kilterator(self, graph):
-        return self.kilt.fit_transform(graph, self.homology_dims)
+        return self.kilt.fit_transform(graph, self.ph.homology_dims)
 
     @staticmethod
     def _format_inputs(G):
-        if KILT._is_distribution(G):
+        if Comparator._is_distribution(G):
             return G
-        elif KILT._is_graph(G):
+        elif Comparator._is_graph(G):
             return [G]
         else:
             raise ValueError(

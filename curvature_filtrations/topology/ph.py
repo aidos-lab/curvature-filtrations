@@ -1,6 +1,6 @@
 import collections
 import multiprocessing
-from typing import List, Tuple, Optional, Union
+from typing import List, Tuple, Optional, Dict
 
 import gudhi as gd
 import gudhi.representations
@@ -42,8 +42,8 @@ class GraphHomology:
         self.max_dimension = max(self.homology_dims)
 
     def calculate_persistent_homology(
-        self, G: nx.Graph
-    ) -> List[List[Tuple[float, float]]]:
+        self, G: nx.Graph, extended_persistence: bool = False
+    ) -> Dict[int, List[Tuple[float, float]]]:
         """
         Calculates persistent homology of the graph's clique complex.
 
@@ -66,9 +66,12 @@ class GraphHomology:
         simplex_tree = self._build_simplex_tree(G)
         simplex_tree.make_filtration_non_decreasing()
         simplex_tree.expansion(self.max_dimension)
-        persistence_pairs = simplex_tree.persistence(persistence_dim_max=True)
+        if extended_persistence:
+            simplex_tree.extended_persistence()
+        else:
+            simplex_tree.persistence(persistence_dim_max=True)
 
-        diagrams = self._format_persistence_diagrams(persistence_pairs)
+        diagrams = self._format_persistence_diagrams(simplex_tree)
         return diagrams
 
     def _build_simplex_tree(self, G: nx.Graph) -> gd.SimplexTree:
@@ -103,9 +106,7 @@ class GraphHomology:
 
         return st
 
-    def _format_persistence_diagrams(
-        self, persistence_pairs: List[Tuple[int, Tuple[float, float]]]
-    ) -> List[List[Tuple[float, float]]]:
+    def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree):
         """
         Formats persistence pairs into diagrams for each specified homology dimension.
 
@@ -121,12 +122,14 @@ class GraphHomology:
             A list of persistence diagrams, each corresponding to a homology dimension. Each
             inner list contains (birth, death) tuples for persistence pairs in that dimension.
         """
-        diagrams = []
-        for dimension in range(self.max_dimension + 1):
-            diagram = [
-                (birth, death)
-                for dim, (birth, death) in persistence_pairs
-                if dim == dimension
-            ]
-            diagrams.append(diagram)
+        diagrams = {}
+        for dim in self.homology_dims:
+            persistence_pairs = self._mask_infinities(
+                simplex_tree.persistence_intervals_in_dimension(dim)
+            )
+            diagrams[dim] = persistence_pairs
         return diagrams
+
+    @staticmethod
+    def _mask_infinities(array):
+        return array[array[:, 1] < np.inf]
