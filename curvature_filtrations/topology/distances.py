@@ -38,7 +38,7 @@ class TopologicalDistance(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fit(self):
+    def fit(self, **kwargs):
         """Convert persistence diagrams to topological descriptors."""
         raise NotImplementedError
 
@@ -62,7 +62,7 @@ class LandscapeDistance(TopologicalDistance):
         """Indicates support for distributions of persistence diagrams."""
         return True
 
-    def fit(self):
+    def fit(self, **kwargs):
         """Compute and return average persistence landscapes for both diagrams."""
         landscapes1 = self._convert_to_landscape(self.diagram1)
         landscapes2 = self._convert_to_landscape(self.diagram2)

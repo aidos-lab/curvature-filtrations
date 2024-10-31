@@ -6,6 +6,14 @@ from curvature_filtrations.topology.distances import (
 
 
 class TestLandscapeDistance:
+
+    def test_init(self, toy_diagram1, toy_diagram2):
+        LD = LandscapeDistance(
+            toy_diagram1, toy_diagram2, norm=2, resolution=1000
+        )
+        assert LD.diagram1 == toy_diagram1
+        assert LD.diagram2 == toy_diagram2
+
     def test_distribution_support(self, setup_landscape_distance):
         """Test the support for distributions."""
         assert setup_landscape_distance.supports_distribution() is True
