@@ -1,86 +1,105 @@
-from cfggme.kilt import Curvature
+import pytest
+from curvature_filtrations.kilt import KILT
 import networkx as nx
 import numpy as np
-import cfggme.geometry.measures as measures
+import curvature_filtrations.geometry.measures as measures
 
 
-def test_pytest():
-    assert 1 + 1 == 2
+class TestKILT:
 
+    def test_create_object(self):
+        klt = KILT()
+        assert type(klt) == KILT
 
-# Create of Curvature object works with no inputs
-def test_create_object():
-    obj = Curvature()
-    assert type(obj) == Curvature
+    def test_defaults(self):
+        klt = KILT()
+        assert klt.measure == "forman_curvature"
+        assert klt.weight == None
+        assert klt.alpha == 0.0
+        assert klt.alpha == 0.0
+        assert klt.prob_fn == None
 
+    def test_wrong_measure(self):
+        with pytest.raises(AssertionError):
+            KILT(measure="wrong_measure")
 
-# Checks that default values are assigned properly
-def test_defaults():
-    obj = Curvature()
-    assert obj.method == "forman_curvature"
-    assert obj.weight == None
-    assert obj.alpha == 0.0
-    assert obj.alpha == 0.0
-    assert obj.prob_fn == None
+    def test_G_get_set(self, graph):
+        klt = KILT()
+        assert klt.G is None
+        klt.G = graph
+        assert klt.G is not None
+        assert isinstance(klt.G, nx.Graph)
+        assert klt.G != graph  # We're copying!
 
+    def test_curvature_get_set(self, graph):
+        klt = KILT()
+        # Get Curvature before computing raises error
+        assert klt.curvature is None
 
-# Curvature computation tests on ER graphs
-def test_er_forman():
-    G = nx.erdos_renyi_graph(100, 0.1)
-    obj = Curvature()
-    curvature_1 = obj.fit(G)
-    curvature_2 = measures.forman_curvature(G)
-    assert all(curvature_1 == curvature_2)
+        # Set Graph
+        klt.G = graph
+        assert klt.G is not None
+        assert isinstance(klt.curvature, np.ndarray)
+        assert len(klt.curvature) == 0
 
+        # Set Curvature
+        klt.fit(graph)
+        # Get Curvature from KILT.G
+        assert len(klt.curvature) == len(graph.edges)
+        assert klt.curvature.shape == (len(graph.edges),)
 
-def test_er_orc():
-    G = nx.erdos_renyi_graph(100, 0.1)
-    obj = Curvature(method="ollivier_ricci_curvature")
-    curvature_1 = obj.fit(G)
-    curvature_2 = measures.ollivier_ricci_curvature(G)
-    assert all(curvature_1 == curvature_2)
+    def test_kilt_forman(self, graph):
+        klt = KILT(measure="forman_curvature")
+        klt.fit(graph)
+        curvature = measures.forman_curvature(graph)
+        assert len(klt.curvature) == len(curvature)
+        assert np.array_equal(klt.curvature, curvature)
 
+    def test_kilt_orc(self, graph):
+        klt = KILT(measure="ollivier_ricci_curvature")
+        klt.fit(graph)
+        curvature = measures.ollivier_ricci_curvature(graph)
+        assert len(klt.curvature) == len(curvature)
+        assert np.array_equal(klt.curvature, curvature)
 
-def test_er_resistance():
-    G = nx.erdos_renyi_graph(100, 0.1)
-    obj = Curvature(method="resistance_curvature")
-    curvature_1 = obj.fit(G)
-    curvature_2 = measures.resistance_curvature(G)
-    assert all(curvature_1 == curvature_2)
+    def test_kilt_resistance(self, graph):
+        klt = KILT(measure="resistance_curvature")
+        klt.fit(graph)
+        curvature = measures.resistance_curvature(graph)
+        assert len(klt.curvature) == len(curvature)
+        assert np.array_equal(klt.curvature, curvature)
 
-    # alpha_obj = Curvature(method="resistance_curvature", alpha=0.1)
-    # alpha_1 = alpha_obj.fit(G)
-    # alpha_2 = methods.resistance_curvature(G, alpha=0.1)
-    # assert all(alpha_1 == alpha_2)
+    def test_fit(self, graph):
+        klt = KILT(measure="forman_curvature")
+        assert klt.G is None
+        assert klt.fit(graph) is None
+        assert klt.G is not None
+        assert isinstance(klt.G, nx.Graph)
+        assert isinstance(klt.curvature, np.ndarray)
 
+    def test_transform(self, graph, regular_homology_dims):
+        klt = KILT(measure="forman_curvature")
 
-# Test adapted from Nammu
-def test_weighted_forman():
-    unweighted = Curvature()
-    weighted = Curvature(weight="weight")
-    G = nx.path_graph(5)
+        with pytest.raises(AssertionError):
+            klt.transform(graph)
 
-    nx.set_edge_attributes(G, 1.0, "weight")
-    nx.set_node_attributes(G, 1.0, "weight")
+        klt.G = graph
+        with pytest.raises(AssertionError):
+            klt.transform(regular_homology_dims)
 
-    curvature = unweighted.fit(G)
-    # notice here instead of adding 'weight' to parameters, we change the curvature object
-    weighted_curvature = weighted.fit(G)
+        # Manually set curvature
+        klt.curvature = measures.forman_curvature(graph)
+        klt.transform(regular_homology_dims)
 
-    assert all(curvature == weighted_curvature)
+        # Use fit to set curvature
+        klt.fit(graph)
+        diagram = klt.transform(homology_dims=regular_homology_dims)
+        assert isinstance(diagram, dict)
+        for dim in regular_homology_dims:
+            assert dim in diagram.keys()
+            isinstance(diagram[dim], np.ndarray)
 
-    # changing weights
-    G[1][2]["weight"] = 2.0
-    G[2][3]["weight"] = 2.0
-
-    curvature = weighted.fit(G)
-    weighted_curvature = unweighted.fit(G)
-
-    assert not all(curvature == weighted_curvature)
-
-
-# Topology basic tests
-def test_make_landscape():
-    G = nx.erdos_renyi_graph(100, 0.1)
-    obj = Curvature()
-    obj.make_landscape(G)
+    def test_fit_transform(self, graph):
+        klt = KILT(measure="forman_curvature")
+        diagram = klt.fit_transform(graph)
+        assert isinstance(diagram, dict)
