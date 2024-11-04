@@ -50,22 +50,25 @@ class TestComparator:
         with pytest.raises(ValueError):
             comp._format_inputs(1)
 
-    def test_curvature_filtration(
-        self, graph, graph2, small_graph, empty_graph
-    ):
+    def test_curvature_filtration(self, graph_distribution1):
         comp = Comparator()
         holder = np.zeros(1)
-        distribution = [graph, graph2, small_graph, empty_graph]
 
-        for G in comp._format_inputs(distribution):
+        for G in comp._format_inputs(graph_distribution1):
             comp.kilt.fit(G)
             # KILT is fitting new curvature for each graph!
             assert not np.array_equal(holder, comp.kilt.curvature)
             holder = comp.kilt.curvature
 
-    def test_fit(self, graph, graph2, small_graph, empty_graph):
+    def test_fit(
+        self,
+        graph,
+        empty_graph,
+        graph_distribution1,
+        graph_distribution2,
+    ):
         comp = Comparator()
-        distribution = [graph, graph2, small_graph, empty_graph]
+        distribution = [graph, empty_graph]
         with pytest.raises(AssertionError):
             comp.fit(distribution, distribution)
 
@@ -73,3 +76,5 @@ class TestComparator:
         comp.fit(distribution, distribution)
         assert comp.descriptor1 is not None
         assert comp.descriptor2 is not None
+
+        comp.fit(graph_distribution1, graph_distribution2)

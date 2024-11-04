@@ -24,8 +24,13 @@ def empty_graph():
 
 
 @pytest.fixture
-def graph_distribution():
-    return [nx.erdos_renyi_graph(100, 0.1), nx.erdos_renyi_graph(100, 0.2)]
+def graph_distribution1():
+    return [nx.erdos_renyi_graph(100, np.random.rand()) for _ in range(8)]
+
+
+@pytest.fixture
+def graph_distribution2():
+    return [nx.erdos_renyi_graph(100, np.random.rand()) for _ in range(10)]
 
 
 @pytest.fixture
