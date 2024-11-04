@@ -7,64 +7,7 @@ import networkx as nx
 import numpy as np
 
 
-def _forman_curvature_unweighted(G):
-    curvature = []
-    for edge in G.edges():
-
-        source, target = edge
-        source_degree = G.degree(source)
-        target_degree = G.degree(target)
-
-        source_neighbours = set(G.neighbors(source))
-        target_neighbours = set(G.neighbors(target))
-
-        n_triangles = len(source_neighbours.intersection(target_neighbours))
-        curvature.append(
-            float(4 - source_degree - target_degree + 3 * n_triangles)
-        )
-
-    return np.asarray(curvature)
-
-
-def _forman_curvature_weighted(G, weight):
-    has_node_attributes = bool(nx.get_node_attributes(G, weight))
-
-    curvature = []
-    for edge in G.edges:
-        source, target = edge
-        source_weight, target_weight = 1.0, 1.0
-
-        # Makes checking for duplicate edges easier below. We expect the
-        # source vertex to be the (lexicographically) smaller one.
-        if source > target:
-            source, target = target, source
-
-        if has_node_attributes:
-            source_weight = G.nodes[source][weight]
-            target_weight = G.nodes[target][weight]
-
-        edge_weight = G[source][target][weight]
-
-        e_curvature = source_weight / edge_weight
-        e_curvature += target_weight / edge_weight
-
-        parallel_edges = list(G.edges(source, data=weight)) + list(
-            G.edges(target, data=weight)
-        )
-
-        for u, v, w in parallel_edges:
-            if u > v:
-                u, v = v, u
-
-            if (u, v) == edge:
-                continue
-            else:
-                e_curvature -= w / np.sqrt(edge_weight * w)
-
-        e_curvature *= edge_weight
-        curvature.append(float(e_curvature))
-
-    return np.asarray(curvature)
+# TODO: Implement Balanced Curvature
 
 
 def forman_curvature(G, weight=None):
@@ -193,6 +136,113 @@ def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None):
     return np.asarray(curvature)
 
 
+def resistance_curvature(G, weight=None):
+    """Calculate Resistance Curvature of a graph.
+
+    This function calculates the resistance curvature of a graph,
+    optionally taking (positive) edge weights into account.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        Input graph
+
+    weight : str or None
+        Name of an edge attribute that is supposed to be used as an edge
+        weight. If None, unweighted curvature is calculated.
+
+    Returns
+    -------
+    np.array
+        An array of edge curvature values, following the ordering of
+        edges of `G`.
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter(action="ignore", category=FutureWarning)
+        # Generate Matrix of Resistance Distances and Node Reference
+        # Dictionary
+        R, node_to_index = pairwise_resistances(G, weight=weight)
+    curvature = []
+
+    for edge in G.edges():
+        source, target = edge
+        source_curvature = node_resistance_curvature(
+            G, source, weight=weight, R=R, node_to_index=node_to_index
+        )
+        target_curvature = node_resistance_curvature(
+            G, target, weight=weight, R=R, node_to_index=node_to_index
+        )
+
+        edge_curvature = (
+            2
+            * (source_curvature + target_curvature)
+            / R[node_to_index[source], node_to_index[target]]
+        )
+        curvature.append(edge_curvature)
+
+    return np.asarray(curvature)
+
+
+def _forman_curvature_unweighted(G):
+    curvature = []
+    for edge in G.edges():
+
+        source, target = edge
+        source_degree = G.degree(source)
+        target_degree = G.degree(target)
+
+        source_neighbours = set(G.neighbors(source))
+        target_neighbours = set(G.neighbors(target))
+
+        n_triangles = len(source_neighbours.intersection(target_neighbours))
+        curvature.append(
+            float(4 - source_degree - target_degree + 3 * n_triangles)
+        )
+
+    return np.asarray(curvature)
+
+
+def _forman_curvature_weighted(G, weight):
+    has_node_attributes = bool(nx.get_node_attributes(G, weight))
+
+    curvature = []
+    for edge in G.edges:
+        source, target = edge
+        source_weight, target_weight = 1.0, 1.0
+
+        # Makes checking for duplicate edges easier below. We expect the
+        # source vertex to be the (lexicographically) smaller one.
+        if source > target:
+            source, target = target, source
+
+        if has_node_attributes:
+            source_weight = G.nodes[source][weight]
+            target_weight = G.nodes[target][weight]
+
+        edge_weight = G[source][target][weight]
+
+        e_curvature = source_weight / edge_weight
+        e_curvature += target_weight / edge_weight
+
+        parallel_edges = list(G.edges(source, data=weight)) + list(
+            G.edges(target, data=weight)
+        )
+
+        for u, v, w in parallel_edges:
+            if u > v:
+                u, v = v, u
+
+            if (u, v) == edge:
+                continue
+            else:
+                e_curvature -= w / np.sqrt(edge_weight * w)
+
+        e_curvature *= edge_weight
+        curvature.append(float(e_curvature))
+
+    return np.asarray(curvature)
+
+
 def pairwise_resistances(G, weight=None):
     """Calculate pairwise resistances for all neighbors of a graph.
 
@@ -294,50 +344,3 @@ def node_resistance_curvature(G, node, weight=None, R=None, node_to_index=None):
     node_curvature = 1 - 0.5 * rel_resistance
 
     return np.float32(node_curvature)
-
-
-def resistance_curvature(G, weight=None):
-    """Calculate Resistance Curvature of a graph.
-
-    This function calculates the resistance curvature of a graph,
-    optionally taking (positive) edge weights into account.
-
-    Parameters
-    ----------
-    G : networkx.Graph
-        Input graph
-
-    weight : str or None
-        Name of an edge attribute that is supposed to be used as an edge
-        weight. If None, unweighted curvature is calculated.
-
-    Returns
-    -------
-    np.array
-        An array of edge curvature values, following the ordering of
-        edges of `G`.
-    """
-    with warnings.catch_warnings():
-        warnings.simplefilter(action="ignore", category=FutureWarning)
-        # Generate Matrix of Resistance Distances and Node Reference
-        # Dictionary
-        R, node_to_index = pairwise_resistances(G, weight=weight)
-    curvature = []
-
-    for edge in G.edges():
-        source, target = edge
-        source_curvature = node_resistance_curvature(
-            G, source, weight=weight, R=R, node_to_index=node_to_index
-        )
-        target_curvature = node_resistance_curvature(
-            G, target, weight=weight, R=R, node_to_index=node_to_index
-        )
-
-        edge_curvature = (
-            2
-            * (source_curvature + target_curvature)
-            / R[node_to_index[source], node_to_index[target]]
-        )
-        curvature.append(edge_curvature)
-
-    return np.asarray(curvature)
