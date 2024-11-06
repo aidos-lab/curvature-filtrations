@@ -103,7 +103,7 @@ class Comparator:
 
     def __str__(self) -> str:
         """Return a user-friendly string representation of the Comparator object."""
-        name = f"Comparator object with: \n\tKILT object: [{self.kilt}]\n\tDescriptor 1: {self.descriptor1}\n\tDescriptor 2: {self.descriptor2}"
+        name = f"Comparator object with: \n\tCurvature method defined by: [{self.kilt}]\n\tDescriptor 1: {self.descriptor1}\n\tDescriptor 2: {self.descriptor2}"
         return name
 
     def __repr__(self) -> str:
