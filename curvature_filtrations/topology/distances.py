@@ -54,9 +54,7 @@ class LandscapeDistance(TopologicalDistance):
     def __init__(self, diagram1, diagram2, norm=2, resolution=1000) -> None:
         super().__init__(diagram1, diagram2, norm)
         self.resolution = resolution
-        self.landscape_transformer = gd.representations.Landscape(
-            resolution=resolution
-        )
+        self.landscape_transformer = gd.representations.Landscape(resolution=resolution)
 
     def supports_distribution(self) -> bool:
         """Indicates support for distributions of persistence diagrams."""
@@ -115,9 +113,10 @@ class LandscapeDistance(TopologicalDistance):
         landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
     ) -> Dict[int, np.array]:
         """Subtract two landscapes for each common dimension."""
-        return {
-            dim: landscape1[dim] - landscape2[dim] for dim in landscape1.keys()
-        }
+        return {dim: landscape1[dim] - landscape2[dim] for dim in landscape1.keys()}
+
+    def __str__(self):
+        return f"LandscapeDistance object between (1) [{self.diagram1}] and (2) [{self.diagram2}]"
 
 
 # Example dictionary to link supported distances
