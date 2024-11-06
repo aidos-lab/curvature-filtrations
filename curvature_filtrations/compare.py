@@ -71,9 +71,7 @@ class Comparator:
     def _setup_distance(self, metric) -> TopologicalDistance:
 
         # Check that the metric is supported
-        assert (
-            metric in supported_distances
-        ), f"Metric {metric} is not supported."
+        assert metric in supported_distances, f"Metric {metric} is not supported."
 
         return supported_distances[metric]
 
@@ -102,3 +100,12 @@ class Comparator:
     @staticmethod
     def _is_graph(G):
         return isinstance(G, nx.Graph)
+
+    def __str__(self) -> str:
+        """Return a user-friendly string representation of the Comparator object."""
+        name = f"Comparator object with: \n\tKILT object: [{self.kilt}]\n\tDescriptor 1: {self.descriptor1}\n\tDescriptor 2: {self.descriptor2}"
+        return name
+
+    def __repr__(self) -> str:
+        """Return a string representation of the Comparator object helpful to the developer."""
+        return f"Comparator({self.kilt}, {self.descriptor1}, {self.descriptor2}, {self.ph})"
