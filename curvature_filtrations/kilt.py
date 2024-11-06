@@ -9,6 +9,12 @@ from curvature_filtrations.topology.ph import (
     GraphHomology,
 )
 
+CURVATURE_MEASURES = [
+    "forman_curvature",
+    "ollivier_ricci_curvature",
+    "resistance_curvature",
+]  # methods for calculating curvature that KILT currently supports
+
 
 class KILT:
     """Krvature-Informed Links and Topology (KILT) is a class that faciltates computing discrete curvature values for graphs.
@@ -54,12 +60,6 @@ class KILT:
     fit_transform(self, graph, homology_dims: Optional[List[int]] = [0, 1]) -> Dict[int, np.array]:
         Combines fit and transform methods; i.e. calculates curvature and executes a filtration for the given homology dimensions. Returns a persistence diagram stored in dictionary format.
     """
-
-    CURVATURE_MEASURES = [
-        "forman_curvature",
-        "ollivier_ricci_curvature",
-        "resistance_curvature",
-    ]  # methods for calculating curvature that KILT currently supports
 
     def __init__(
         self,
