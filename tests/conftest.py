@@ -51,6 +51,6 @@ def toy_diagram2():
 
 
 @pytest.fixture
-def diagram_dict():
+def dummy_diagram():
     """Toy input for making a Diagram object (output of the persistent homology )"""
     return {0: np.array([[-24.0, -20.0], [-23.0, -19.0], [-19.0, -18.0]]), 1: np.array([-21, -20])}
