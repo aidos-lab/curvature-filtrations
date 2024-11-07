@@ -77,6 +77,20 @@ class GraphHomology:
     This class uses Gudhi's `SimplexTree` to build a clique complex on a given
     graph and compute persistence diagrams for homology groups, using an edge
     attribute (e.g. curvature) as a filtration function.
+
+    Attributes
+    ----------
+    homology_dims : List[int]
+        Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
+        Default is [0, 1].
+
+    filter_attribute : str, optional
+        The edge attribute to use as the filtration value. Default is "curvature".
+
+    Methods
+    -------
+    calculate_persistent_homology(self, G : nx.Graph, extended_persistence: bool = False) -> PersistenceDiagram):
+        Uses helper methods _build_simplex_tree to execute a filtration on the given graph and _format_persistence_diagrams to store the resulting persistent homology data in a PersistenceDiagram object.
     """
 
     def __init__(
