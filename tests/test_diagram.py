@@ -16,19 +16,19 @@ class TestDiagram:
         assert diagram.homology_dims == [0, 1]
         assert diagram.persistence_pts == None
 
-    def test_set_persistence_pts(self, diagram_dict):
+    def test_set_persistence_pts(self, dummy_diagram):
         diagram = PersistenceDiagram()
         assert diagram._persistence_pts == None
         # setting persistence points
-        diagram.persistence_pts = diagram_dict
-        assert diagram.persistence_pts == diagram_dict
+        diagram.persistence_pts = dummy_diagram
+        assert diagram.persistence_pts == dummy_diagram
 
-    def test_get_pts_for_dim(self, diagram_dict):
+    def test_get_pts_for_dim(self, dummy_diagram):
         diagram = PersistenceDiagram()
         # set and get
-        diagram.persistence_pts = diagram_dict
-        print(diagram_dict[0])
-        assert np.all(diagram.get_pts_for_dim(0) == diagram_dict[0])
+        diagram.persistence_pts = dummy_diagram
+        print(dummy_diagram[0])
+        assert np.all(diagram.get_pts_for_dim(0) == dummy_diagram[0])
 
     def test_ph_calc(self, graph):
         klt = KILT()
