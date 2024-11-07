@@ -2,6 +2,7 @@ import pytest
 import networkx as nx
 import numpy as np
 from curvature_filtrations.topology.ph import GraphHomology, PersistenceDiagram
+from curvature_filtrations.kilt import KILT
 
 
 class TestDiagram:
@@ -28,3 +29,8 @@ class TestDiagram:
         diagram.persistence_pts = diagram_dict
         print(diagram_dict[0])
         assert np.all(diagram.get_pts_for_dim(0) == diagram_dict[0])
+
+    def test_ph_calc(self, graph):
+        klt = KILT()
+        ph = klt.fit_transform(graph)
+        assert type(ph) == PersistenceDiagram
