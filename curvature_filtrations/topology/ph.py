@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 
 
 class PersistenceDiagram:
-    """A wrapper object for the data housed in a persistence diagram.
+    """A wrapper object for the data housed in a persistence diagram for the specified homology dimensions.
 
     Attributes
     ----------
@@ -112,10 +112,9 @@ class GraphHomology:
 
         Returns
         -------
-        Dict[int, np.array]
-            Persistence diagrams for each dimension up to `max_dimension`.
-            Dictionary maps the homology dimension to a np.array of its persistence pairs.
-            Each np.array contains tuples of (birth, death) values for each persistence pair.
+        PersistenceDiagram
+            Object that stores the raw data from a persistence diagram created by a filtration,
+            i.e. stores all persistence (birth,death) pairs for each homology dimension.
 
         Raises
         ------
@@ -167,28 +166,31 @@ class GraphHomology:
 
     def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree) -> Dict[int, np.array]:
         """
-        Formats persistence pairs into diagrams for each specified homology dimension.
+        Converts a gd.SimplexTree into a PersistenceDiagram object.
 
         Parameters
         ----------
-        persistence_pairs : list of tuples
-            Persistence pairs returned by Gudhi's persistence computation. Each tuple
-            is of the form (dimension, (birth, death)).
+        simplex_tree: gd.SimplexTree
+            Simplex tree built from the graph by conducting a filtration.
 
         Returns
         -------
-        Dict[int, np.array]
-            Persistence diagrams for each dimension up to `max_dimension`.
-            Dictionary maps the homology dimension to a np.array of its persistence pairs.
-            Each np.array contains tuples of (birth, death) values for each persistence pair.
+        PersistenceDiagram
+            Object that stores the raw data from a persistence diagram created by a filtration,
+            i.e. stores all persistence (birth,death) pairs for each homology dimension.
         """
-        diagrams = {}
+        # initialize PersistenceDiagram object
+        diagram = PersistenceDiagram(self.homology_dims)
+        # format dictionary of mapping persistence points to homology dimensions for input into PersistenceDiagram object
+        persistance_pts = {}
         for dim in self.homology_dims:
             persistence_pairs = self._mask_infinities(
                 simplex_tree.persistence_intervals_in_dimension(dim)
             )
-            diagrams[dim] = persistence_pairs
-        return diagrams
+            persistance_pts[dim] = persistence_pairs
+        # store persistence points in PersistenceDiagram object
+        diagram.persistence_pts = persistance_pts
+        return diagram
 
     @staticmethod
     def _mask_infinities(array):
