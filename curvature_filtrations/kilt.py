@@ -171,7 +171,8 @@ class KILT:
         Returns
         -------
         PersistenceDiagram
-            A persistence diagram that stores the topological information from a curvature filtration.
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         ph = GraphHomology(homology_dims, self.measure)
         assert (
@@ -203,7 +204,8 @@ class KILT:
         Returns
         -------
         PersistenceDiagram
-            A persistence diagram that stores the topological information from a curvature filtration.
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         self.fit(graph)
         return self.transform(homology_dims)

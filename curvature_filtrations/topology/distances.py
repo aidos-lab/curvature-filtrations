@@ -80,7 +80,7 @@ class LandscapeDistance(TopologicalDistance):
 
     def _convert_to_landscape(
         self, diagrams: List[PersistenceDiagram]
-    ) -> List[Dict[int, np.array]]:  # TODO: add PD
+    ) -> List[Dict[int, np.array]]:
         """Convert each persistence diagram to a persistence landscape for each dimension."""
         landscapes = []
 

@@ -19,10 +19,11 @@ class PersistenceDiagram:
         Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
         Default is [0, 1].
 
-    _persistence_points : Dict[int, np.array]
+    _persistence_points : None or Dict[int, np.array]
         A dictionary that maps the homology dimension to a np.array of its persistence pairs.
         Each np.array contains tuples of (birth, death) values for each persistence pair.
         Note that the attribute homology_dims must be a subset of the list of keys (hom. dims.) in this dictionary.
+        Initialized to None, set using setter method.
 
     Methods
     -------
@@ -127,8 +128,8 @@ class GraphHomology:
         Returns
         -------
         PersistenceDiagram
-            Object that stores the raw data from a persistence diagram created by a filtration,
-            i.e. stores all persistence (birth,death) pairs for each homology dimension.
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
 
         Raises
         ------
@@ -190,8 +191,8 @@ class GraphHomology:
         Returns
         -------
         PersistenceDiagram
-            Object that stores the raw data from a persistence diagram created by a filtration,
-            i.e. stores all persistence (birth,death) pairs for each homology dimension.
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         # initialize PersistenceDiagram object
         diagram = PersistenceDiagram(self.homology_dims)
