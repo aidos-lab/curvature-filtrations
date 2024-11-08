@@ -84,14 +84,13 @@ class Comparator:
 
     @staticmethod
     def _format_inputs(G):
+        """Always returns a list of graphs."""
         if Comparator._is_distribution(G):
             return G
         elif Comparator._is_graph(G):
             return [G]
         else:
-            raise ValueError(
-                "Input must be a networkx.Graph or a list of networkx.Graphs"
-            )
+            raise ValueError("Input must be a networkx.Graph or a list of networkx.Graphs")
 
     @staticmethod
     def _is_distribution(G):

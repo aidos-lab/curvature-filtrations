@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
 import gudhi as gd
+from curvature_filtrations.topology.ph import PersistenceDiagram
 
 
 class TopologicalDistance(ABC):
@@ -69,9 +70,7 @@ class LandscapeDistance(TopologicalDistance):
         avg2 = self._average_landscape(landscapes2)
         return avg1, avg2
 
-    def transform(
-        self, landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
-    ) -> float:
+    def transform(self, landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]) -> float:
         """Compute the norm-based distance between two persistence landscapes."""
         common_dims = set(landscape1.keys()).intersection(landscape2.keys())
         difference = self._subtract_landscapes(landscape1, landscape2)
@@ -80,22 +79,27 @@ class LandscapeDistance(TopologicalDistance):
         return distance
 
     def _convert_to_landscape(
-        self, diagrams: List[Dict[int, np.array]]
+        self, diagrams: List[PersistenceDiagram]
     ) -> List[Dict[int, np.array]]:
         """Convert each persistence diagram to a persistence landscape for each dimension."""
         landscapes = []
+
         for diagram in diagrams:
-            landscape = {
-                dim: self.landscape_transformer.fit_transform([points])[0]
-                for dim, points in diagram.items()
-            }
+            # from before change to PersistenceDiagram object:
+            # landscape = {
+            #     dim: self.landscape_transformer.fit_transform([points])[0]
+            #     for dim, points in diagram.items()
+            # }
+            landscape = {}
+            for dim, points in diagram.persistence_pts.items():
+                transformed_points = self.landscape_transformer.fit_transform([points])[0]
+                landscape[dim] = transformed_points
             landscapes.append(landscape)
+
         return landscapes
 
     @staticmethod
-    def _average_landscape(
-        landscapes: List[Dict[int, np.array]]
-    ) -> Dict[int, np.array]:
+    def _average_landscape(landscapes: List[Dict[int, np.array]]) -> Dict[int, np.array]:
         """Compute the average persistence landscape across multiple landscapes."""
         avg_landscape = {}
         for landscape in landscapes:

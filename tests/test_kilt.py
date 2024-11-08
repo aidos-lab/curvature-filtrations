@@ -3,6 +3,7 @@ from curvature_filtrations.kilt import KILT
 import networkx as nx
 import numpy as np
 import curvature_filtrations.geometry.measures as measures
+from curvature_filtrations.topology.ph import PersistenceDiagram
 
 
 class TestKILT:
@@ -94,26 +95,26 @@ class TestKILT:
         # Use fit to set curvature
         klt.fit(graph)
         diagram = klt.transform(homology_dims=regular_homology_dims)
-        assert isinstance(diagram, dict)
+        assert isinstance(diagram, PersistenceDiagram)
         for dim in regular_homology_dims:
-            assert dim in diagram.keys()
-            isinstance(diagram[dim], np.ndarray)
+            assert dim in diagram.homology_dims
+            isinstance(diagram.get_pts_for_dim(dim), np.ndarray)
 
     def test_fit_transform(self, graph, graph2, small_graph):
         klt = KILT(measure="forman_curvature")
         diagram1 = klt.fit_transform(graph)
         curv1 = klt.curvature
-        assert isinstance(diagram1, dict)
+        assert isinstance(diagram1, PersistenceDiagram)
 
         small_diagram = klt.fit_transform(small_graph)
         small_curv = klt.curvature
-        assert isinstance(small_diagram, dict)
+        assert isinstance(small_diagram, PersistenceDiagram)
 
         assert not len(curv1) == len(small_curv)
 
         diagram2 = klt.fit_transform(graph2)
         curv2 = klt.curvature
-        assert isinstance(diagram2, dict)
+        assert isinstance(diagram2, PersistenceDiagram)
 
         if len(curv1) == len(curv2):
             assert not np.array_equal(curv1, curv2)

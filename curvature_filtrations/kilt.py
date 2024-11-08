@@ -9,11 +9,12 @@ from curvature_filtrations.topology.ph import (
     GraphHomology,
 )
 
+# methods for calculating curvature that KILT currently supports
 CURVATURE_MEASURES = [
     "forman_curvature",
     "ollivier_ricci_curvature",
     "resistance_curvature",
-]  # methods for calculating curvature that KILT currently supports
+]
 
 
 class KILT:
@@ -51,13 +52,13 @@ class KILT:
     curvature:
         Getter (self -> np.array) and setter (self, np.array -> None) for np.array of the graph's curvature values.
 
-    fit(self, graph: nx.Graph) -> None
+    fit(self, graph: nx.Graph) -> None:
         Calculates the curvature values for the edges of the given graph according to the specifications of the KILT object, which can be retrieved from the curvature property.
 
-    transform(self, homology_dims: Optional[List[int]] = [0, 1],) -> Dict[int, np.array]:
+    transform(self, homology_dims: Optional[List[int]] = [0, 1],) -> PersistenceDiagram:
         Executes a curvature filtration for the given homology dimensions. Can only be called after fit() is performed. Returns a persistence diagram stored in dictionary format.
 
-    fit_transform(self, graph, homology_dims: Optional[List[int]] = [0, 1]) -> Dict[int, np.array]:
+    fit_transform(self, graph, homology_dims: Optional[List[int]] = [0, 1]) -> PersistenceDiagram:
         Combines fit and transform methods; i.e. calculates curvature and executes a filtration for the given homology dimensions. Returns a persistence diagram stored in dictionary format.
     """
 
@@ -105,46 +106,24 @@ class KILT:
 
     @property
     def G(self) -> nx.Graph:
-        """Get the graph associated with the KILT object.
-        Returns
-        -------
-        nx.Graph
-            The graph assigned to the KILT object.
-        """
+        """Getter method for the graph associated with the KILT object."""
         return self._G
 
     @G.setter
     def G(self, graph) -> None:
-        """Set the given graph as the KILT object's graph attribute.
-        Parameters
-        ----------
-        graph : nx.Graph
-            The graph to be assigned to the KILT object.
-        """
+        """Setter method which sets the given graph as the KILT object's graph attribute."""
         self._G = graph.copy()
 
     @property
     def curvature(self) -> np.array:
-        """Return the curvature values of the graph.
-        Returns
-        -------
-        np.array
-            The curvature values for the edges of the graph associated with the KILT object.
-        """
+        """Getter method for the curvature values of the graph."""
         if self.G is None:
             return None
-        return self._unpack_curvature_values(
-            nx.get_edge_attributes(self.G, name=self.measure)
-        )
+        return self._unpack_curvature_values(nx.get_edge_attributes(self.G, name=self.measure))
 
     @curvature.setter
-    def curvature(self, values) -> None:
-        """Set the curvature values of the graph.
-        Parameters
-        ----------
-        values : list
-            The graph to be assigned to the KILT object.
-        """
+    def curvature(self, values: list) -> None:
+        """Setter method for the curvature values of the graph."""
         edge_map = self._pack_curvature_values(self.G.edges, values)
         nx.set_edge_attributes(self.G, edge_map, name=self.measure)
 
@@ -191,10 +170,9 @@ class KILT:
 
         Returns
         -------
-        Dict[int, np.array]
-            A persistence diagram.
-                Keys: Integers that correspond to homology dimensions.
-                Values: np.arrays that contain all persistence pairs in the form of [birth, death] tuples.
+        PersistenceDiagram
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         ph = GraphHomology(homology_dims, self.measure)
         assert (
@@ -225,10 +203,9 @@ class KILT:
 
         Returns
         -------
-        Dict[int, np.array]
-            A persistence diagram.
-                Keys: Integers that correspond to homology dimensions.
-                Values: np.arrays that contain all persistence pairs in the form of [birth, death] tuples.
+        PersistenceDiagram
+            A persistence diagram wrapper for the topological information from a curvature filtration.
+            Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         self.fit(graph)
         return self.transform(homology_dims)
