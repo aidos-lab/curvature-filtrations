@@ -8,6 +8,7 @@ import numpy as np
 
 class PersistenceDiagram:
     """A wrapper object for the data housed in a persistence diagram for the specified homology dimensions.
+    Main attribute (persistence_points) is a Dict[int, np.array] that maps a homology dimension key to a np.array that contains (birth,death) tuples for all the persistence pairs.
 
     Attributes
     ----------
@@ -65,3 +66,23 @@ class PersistenceDiagram:
             self.persistence_pts != None
         ), "Persistence points have not been added to the PersistenceDiagram object"
         return self.persistence_pts[dimension]
+
+
+class PersistenceLandscape:
+    """
+    A wrapper object for the data housed in a persistence landscape for the specified homology dimensions.
+
+    Attributes
+    ----------
+
+    homology_dims : List[int]
+        Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
+        Default is [0, 1].
+
+    """
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        pass
