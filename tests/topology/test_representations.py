@@ -34,3 +34,14 @@ class TestDiagram:
         klt = KILT()
         ph = klt.fit_transform(graph)
         assert type(ph) == PersistenceDiagram
+
+
+class TestLandscape:
+    def test_create_object(self):
+        pass
+
+    def test_defaults(self):
+        pass
+
+    def test_diagram_to_landscape(self, toy_pd):
+        pass
