@@ -5,9 +5,7 @@ from typing import List, Tuple, Optional, Dict
 
 
 import curvature_filtrations.geometry.measures as measures
-from curvature_filtrations.topology.ph import (
-    GraphHomology,
-)
+from curvature_filtrations.topology.ph import GraphHomology
 
 # methods for calculating curvature that KILT currently supports
 CURVATURE_MEASURES = [

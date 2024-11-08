@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
 import gudhi as gd
-from curvature_filtrations.topology.ph import PersistenceDiagram
+from curvature_filtrations.topology.representations import PersistenceDiagram
 
 
 class TopologicalDistance(ABC):

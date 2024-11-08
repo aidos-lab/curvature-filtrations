@@ -1,7 +1,7 @@
 import pytest
 import networkx as nx
 import numpy as np
-from curvature_filtrations.topology.ph import GraphHomology, PersistenceDiagram
+from curvature_filtrations.topology.representations import PersistenceDiagram
 from curvature_filtrations.kilt import KILT
 
 
