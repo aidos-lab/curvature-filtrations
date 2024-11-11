@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
 import gudhi as gd
-from curvature_filtrations.topology.representations import PersistenceDiagram
+from curvature_filtrations.topology.representations import PersistenceDiagram, PersistenceLandscape
 
 
 class TopologicalDistance(ABC):
@@ -80,7 +80,7 @@ class LandscapeDistance(TopologicalDistance):
 
     def _convert_to_landscape(
         self, diagrams: List[PersistenceDiagram]
-    ) -> List[Dict[int, np.array]]:
+    ) -> List[PersistenceLandscape]:
         """Convert each persistence diagram to a persistence landscape for each dimension."""
         landscapes = []
 
@@ -90,10 +90,13 @@ class LandscapeDistance(TopologicalDistance):
             #     dim: self.landscape_transformer.fit_transform([points])[0]
             #     for dim, points in diagram.items()
             # }
-            landscape = {}
+
+            landscape = PersistenceLandscape(diagram.homology_dims)
+            data = {}  # TODO: rename better
             for dim, points in diagram.persistence_pts.items():
                 transformed_points = self.landscape_transformer.fit_transform([points])[0]
-                landscape[dim] = transformed_points
+                data[dim] = transformed_points
+            landscape.data = data
             landscapes.append(landscape)
 
         return landscapes
