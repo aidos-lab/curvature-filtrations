@@ -1,8 +1,9 @@
 import pytest
 import networkx as nx
 import numpy as np
-from curvature_filtrations.topology.representations import PersistenceDiagram
+from curvature_filtrations.topology.representations import PersistenceDiagram, PersistenceLandscape
 from curvature_filtrations.kilt import KILT
+from curvature_filtrations.topology.distances import LandscapeDistance
 
 
 class TestDiagram:
@@ -27,7 +28,6 @@ class TestDiagram:
         diagram = PersistenceDiagram()
         # set and get
         diagram.persistence_pts = dummy_diagram
-        print(dummy_diagram[0])
         assert np.all(diagram.get_pts_for_dim(0) == dummy_diagram[0])
 
     def test_ph_calc(self, graph):
@@ -38,10 +38,18 @@ class TestDiagram:
 
 class TestLandscape:
     def test_create_object(self):
-        pass
+        pl = PersistenceLandscape()
+        assert type(pl) == PersistenceLandscape
 
     def test_defaults(self):
-        pass
+        pl = PersistenceLandscape()
+        assert pl.homology_dims == [0, 1]
+        assert pl.data == None
 
     def test_diagram_to_landscape(self, toy_pd):
-        pass
+        dist = LandscapeDistance(None, None)
+        print(type(toy_pd))
+        pl = dist._convert_to_landscape(toy_pd)[0]
+        print(pl.data)
+        assert type(pl) == PersistenceLandscape
+        assert pl.data != None
