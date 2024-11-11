@@ -3,14 +3,13 @@ import numpy as np
 from curvature_filtrations.topology.distances import (
     LandscapeDistance,
 )
+from curvature_filtrations.topology.representations import PersistenceDiagram, PersistenceLandscape
 
 
 class TestLandscapeDistance:
 
     def test_init(self, toy_diagram1, toy_diagram2):
-        LD = LandscapeDistance(
-            toy_diagram1, toy_diagram2, norm=2, resolution=1000
-        )
+        LD = LandscapeDistance(toy_diagram1, toy_diagram2, norm=2, resolution=1000)
         assert LD.diagram1 == toy_diagram1
         assert LD.diagram2 == toy_diagram2
 
@@ -24,7 +23,7 @@ class TestLandscapeDistance:
             setup_landscape_distance.diagram1
         )
         assert isinstance(landscapes, list)
-        assert isinstance(landscapes[0], dict)
+        assert isinstance(landscapes[0], PersistenceLandscape)
         assert 0 in landscapes[0]
 
     def test_average_landscape(self, setup_landscape_distance):
@@ -50,9 +49,7 @@ class TestLandscapeDistance:
         landscapes2 = setup_landscape_distance._convert_to_landscape(
             setup_landscape_distance.diagram2
         )
-        diff = setup_landscape_distance._subtract_landscapes(
-            landscapes1[0], landscapes2[0]
-        )
+        diff = setup_landscape_distance._subtract_landscapes(landscapes1[0], landscapes2[0])
         assert isinstance(diff, dict)
         assert 0 in diff
         assert 1 in diff
