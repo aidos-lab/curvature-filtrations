@@ -47,9 +47,8 @@ class TestLandscape:
         assert pl.data == None
 
     def test_diagram_to_landscape(self, toy_pd):
+        assert type(toy_pd[0]) == PersistenceDiagram
         dist = LandscapeDistance(None, None)
-        print(type(toy_pd))
         pl = dist._convert_to_landscape(toy_pd)[0]
-        print(pl.data)
         assert type(pl) == PersistenceLandscape
         assert pl.data != None
