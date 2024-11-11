@@ -70,12 +70,14 @@ class LandscapeDistance(TopologicalDistance):
         avg2 = self._average_landscape(landscapes2)
         return avg1, avg2
 
-    def transform(self, landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]) -> float:
+    def transform(
+        self, landscape1: PersistenceLandscape, landscape2: PersistenceLandscape
+    ) -> float:
         """Compute the norm-based distance between two persistence landscapes."""
-        common_dims = set(landscape1.keys()).intersection(landscape2.keys())
+        common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
         difference = self._subtract_landscapes(landscape1, landscape2)
 
-        distance = sum(self.norm(difference[dim]) for dim in common_dims)
+        distance = sum(self.norm(difference.data[dim]) for dim in common_dims)
         return distance
 
     def _convert_to_landscape(
@@ -124,10 +126,15 @@ class LandscapeDistance(TopologicalDistance):
 
     @staticmethod
     def _subtract_landscapes(
-        landscape1: Dict[int, np.array], landscape2: Dict[int, np.array]
-    ) -> Dict[int, np.array]:
+        landscape1: PersistenceLandscape, landscape2: PersistenceLandscape
+    ) -> PersistenceLandscape:
         """Subtract two landscapes for each common dimension."""
-        return {dim: landscape1[dim] - landscape2[dim] for dim in landscape1.keys()}
+        diff_pl = PersistenceLandscape(landscape1.homology_dims)
+        diff_data = {}
+        for dim in landscape1.homology_dims:
+            diff_data[dim] = landscape1.get_data_for_dim(dim) - landscape2.get_data_for_dim(dim)
+        diff_pl.data = diff_data
+        return diff_pl
 
     def __str__(self):
         return f"LandscapeDistance object between (1) [{self.diagram1}] and (2) [{self.diagram2}]"

@@ -107,7 +107,7 @@ class PersistenceLandscape:
         assert type(data) == dict
         self._data = data
 
-    def get_pts_for_dim(self, dimension: int) -> np.array:
+    def get_data_for_dim(self, dimension: int) -> np.array:
         # Returns a np.array for the dimension
         assert self.data != None, "Data has not been added to the PersistenceLandscape object"
         return self.data[dimension]
