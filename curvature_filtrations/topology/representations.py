@@ -114,4 +114,8 @@ class PersistenceLandscape:
 
     def __str__(self):
         # TODO: Implement meaningful string representation
-        pass
+        name = "This is a PersistenceLandscape object with the following functions: \n\t"
+        for dim in self.homology_dims:
+            name += f"H{str(dim)}: {self.get_pts_for_dim(dim)}"
+            name += "\n\t"
+        return name
