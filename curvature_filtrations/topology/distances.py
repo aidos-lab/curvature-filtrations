@@ -91,14 +91,19 @@ class LandscapeDistance(TopologicalDistance):
             #     for dim, points in diagram.items()
             # }
 
+            # not working!!
             landscape = PersistenceLandscape(diagram.homology_dims)
             data = {}  # TODO: rename better
             for dim, points in diagram.persistence_pts.items():
+                # print(points)
+                # TODO: issue here! H1 never changes no matter how i manipulate the input...
                 transformed_points = self.landscape_transformer.fit_transform([points])[0]
+                # print(dim)
+                # print(transformed_points)
                 data[dim] = transformed_points
+            # set to Persistence Landscape
             landscape.data = data
             landscapes.append(landscape)
-
         return landscapes
 
     @staticmethod
