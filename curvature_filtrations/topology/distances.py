@@ -107,18 +107,20 @@ class LandscapeDistance(TopologicalDistance):
         return landscapes
 
     @staticmethod
-    def _average_landscape(landscapes: List[Dict[int, np.array]]) -> Dict[int, np.array]:
+    def _average_landscape(landscapes: List[PersistenceLandscape]) -> PersistenceLandscape:
         """Compute the average persistence landscape across multiple landscapes."""
         avg_landscape = {}
         for landscape in landscapes:
-            for dim, values in landscape.items():
+            for dim, values in landscape.data.items():
                 if dim not in avg_landscape:
                     avg_landscape[dim] = np.zeros_like(values)
                 avg_landscape[dim] += values
 
         for dim in avg_landscape:
             avg_landscape[dim] /= len(landscapes)
-        return avg_landscape
+        avg_pl = PersistenceLandscape(list(avg_landscape.keys()))
+        avg_pl.data = avg_landscape
+        return avg_pl
 
     @staticmethod
     def _subtract_landscapes(
