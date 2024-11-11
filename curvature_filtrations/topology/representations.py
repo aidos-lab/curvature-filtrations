@@ -61,11 +61,20 @@ class PersistenceDiagram:
         self._persistence_pts = points
 
     def get_pts_for_dim(self, dimension: int) -> np.array:
-        # Returns a list of birth, death pairs for the dimension
+        # Returns a np.array of birth, death pairs for the dimension
         assert (
             self.persistence_pts != None
         ), "Persistence points have not been added to the PersistenceDiagram object"
         return self.persistence_pts[dimension]
+
+    def __str__(self) -> str:
+        name = "This is a PersistenceDiagram object with the following (birth, death) pairs: \n\t"
+        for dim in self.homology_dims:
+            name += "H" + str(dim) + ":"
+            for pair in self.get_pts_for_dim(dim):
+                name += f"({pair[0]}, {pair[1]})"
+            name += "\n\t"
+        return name
 
 
 class PersistenceLandscape:
@@ -74,15 +83,35 @@ class PersistenceLandscape:
 
     Attributes
     ----------
-
     homology_dims : List[int]
         Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
         Default is [0, 1].
-
+    data : Dict[int, np.array]
+        TODO: explain what this means
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, homology_dims=[0, 1]):
+        self.homology_dims = homology_dims
+
+        # Initialize data to None
+        self._data = None
+
+    @property
+    def data(self) -> Dict[int, np.array]:
+        """Getter for the data"""
+        return self._data
+
+    @data.setter
+    def data(self, data: Dict[int, np.array]) -> None:
+        """Setter for data"""
+        assert type(data) == dict
+        self._data = data
+
+    def get_pts_for_dim(self, dimension: int) -> np.array:
+        # Returns a np.array for the dimension
+        assert self.data != None, "Data has not been added to the PersistenceLandscape object"
+        return self.data[dimension]
 
     def __str__(self):
+        # TODO: Implement meaningful string representation
         pass
