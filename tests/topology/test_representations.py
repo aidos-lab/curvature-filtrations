@@ -52,3 +52,11 @@ class TestLandscape:
         pl = dist._convert_to_landscape(toy_pd)[0]
         assert type(pl) == PersistenceLandscape
         assert pl.data != None
+
+    def test_avg_landscape(self, toy_pd, toy_pd2):
+        dist = LandscapeDistance(None, None)
+        pl1 = dist._convert_to_landscape(toy_pd)[0]
+        pl2 = dist._convert_to_landscape(toy_pd2)[0]
+        avg = dist._average_landscape([pl1, pl2])
+        assert type(avg) == PersistenceLandscape
+        assert avg.data != None
