@@ -52,9 +52,10 @@ class TopologicalDistance(ABC):
 class LandscapeDistance(TopologicalDistance):
     """Computes distances between persistence landscapes."""
 
-    def __init__(self, diagram1, diagram2, norm=2, resolution=1000) -> None:
+    def __init__(self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5) -> None:
         super().__init__(diagram1, diagram2, norm)
         self.resolution = resolution
+        self.num_functions = num_functions
         self.landscape_transformer = gd.representations.Landscape(resolution=resolution)
 
     def supports_distribution(self) -> bool:
@@ -77,7 +78,7 @@ class LandscapeDistance(TopologicalDistance):
         common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
         difference = self._subtract_landscapes(landscape1, landscape2)
 
-        distance = sum(self.norm(difference.data[dim]) for dim in common_dims)
+        distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
         return distance
 
     def _convert_to_landscape(
@@ -87,24 +88,24 @@ class LandscapeDistance(TopologicalDistance):
         landscapes = []
 
         for diagram in diagrams:
-            # from before change to PersistenceDiagram object:
-            # landscape = {
-            #     dim: self.landscape_transformer.fit_transform([points])[0]
-            #     for dim, points in diagram.items()
-            # }
-
-            # not working!!
-            landscape = PersistenceLandscape(diagram.homology_dims)
-            data = {}  # TODO: rename better
+            landscape = PersistenceLandscape(
+                homology_dims=diagram.homology_dims,
+                num_functions=self.num_functions,
+                resolution=self.resolution,
+            )
+            functions = {}
             for dim, points in diagram.persistence_pts.items():
-                # print(points)
-                # TODO: issue here! H1 never changes no matter how i manipulate the input...
+                # TODO: check this... H1 is not responding to changes in PD input
                 transformed_points = self.landscape_transformer.fit_transform([points])[0]
-                # print(dim)
-                # print(transformed_points)
-                data[dim] = transformed_points
+                landscape_fns = []
+                for fn_num in range(0, self.num_functions):
+                    start_idx = int(fn_num * self.resolution)
+                    indices = range(start_idx, start_idx + 1000)
+                    fn = transformed_points[indices]
+                    landscape_fns.append(fn)
+                functions[dim] = landscape_fns
             # set to Persistence Landscape
-            landscape.data = data
+            landscape.functions = functions
             landscapes.append(landscape)
         return landscapes
 
@@ -112,16 +113,36 @@ class LandscapeDistance(TopologicalDistance):
     def _average_landscape(landscapes: List[PersistenceLandscape]) -> PersistenceLandscape:
         """Compute the average persistence landscape across multiple landscapes."""
         avg_landscape = {}
+        # sum landscape functions
         for landscape in landscapes:
-            for dim, values in landscape.data.items():
+            for dim, functions in landscape.functions.items():
                 if dim not in avg_landscape:
-                    avg_landscape[dim] = np.zeros_like(values)
-                avg_landscape[dim] += values
-
+                    total_functions = np.concatenate(functions)
+                    # instantiate np.array of proper length with 0s
+                    avg_landscape[dim] = np.zeros_like(total_functions)
+                # add data
+                avg_landscape[dim] += total_functions
+        # divide by # of landscapes
         for dim in avg_landscape:
             avg_landscape[dim] /= len(landscapes)
-        avg_pl = PersistenceLandscape(list(avg_landscape.keys()))
-        avg_pl.data = avg_landscape
+
+        # taking parameters from 1st persistence landscape in input
+        avg_pl = PersistenceLandscape(
+            list(avg_landscape.keys()),
+            num_functions=landscapes[0].num_functions,
+            resolution=landscapes[0].resolution,
+        )
+        # TODO: use concatenate method
+        avg_fns = {}
+        for dim in avg_pl.homology_dims:
+            landscape_fns = []
+            for fn_num in range(0, avg_pl.num_functions):
+                start_idx = int(fn_num * avg_pl.resolution)
+                indices = range(start_idx, start_idx + avg_pl.resolution)
+                fn = avg_landscape[dim][indices]
+                landscape_fns.append(fn)
+            avg_fns[dim] = landscape_fns
+        avg_pl.functions = avg_fns
         return avg_pl
 
     @staticmethod
@@ -130,11 +151,28 @@ class LandscapeDistance(TopologicalDistance):
     ) -> PersistenceLandscape:
         """Subtract two landscapes for each common dimension."""
         diff_pl = PersistenceLandscape(landscape1.homology_dims)
-        diff_data = {}
+        diff_functions = {}
         for dim in landscape1.homology_dims:
-            diff_data[dim] = landscape1.get_data_for_dim(dim) - landscape2.get_data_for_dim(dim)
-        diff_pl.data = diff_data
+            landscape1_data = np.concatenate(landscape1.get_fns_for_dim(dim))
+            landscape2_data = np.concatenate(landscape2.get_fns_for_dim(dim))
+            diff_functions[dim] = landscape1_data - landscape2_data
+        diff_pl.functions = diff_functions
         return diff_pl
+
+    @staticmethod
+    def _convert_to_function_lists(
+        concatenated_functions: Dict[int, np.array], num_functions, resolution
+    ) -> Dict[int, np.array]:
+        function_list_by_dim = {}
+        for dim in concatenated_functions.keys():
+            function_list = []
+            for fn_num in range(0, num_functions):
+                start_idx = fn_num * resolution
+                indices = range(start_idx, start_idx + resolution)
+                fn = concatenated_functions[dim][indices]
+                function_list.append(fn)
+            function_list_by_dim[dim] = function_list
+        return function_list_by_dim
 
     def __str__(self):
         return f"LandscapeDistance object between (1) [{self.diagram1}] and (2) [{self.diagram2}]"

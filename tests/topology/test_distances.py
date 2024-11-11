@@ -24,7 +24,7 @@ class TestLandscapeDistance:
         )
         assert isinstance(landscapes, list)
         assert isinstance(landscapes[0], PersistenceLandscape)
-        assert 0 in landscapes[0].data
+        assert 0 in landscapes[0].functions
 
     def test_average_landscape(self, setup_landscape_distance):
         """Test calculation of average persistence landscape."""
@@ -33,7 +33,7 @@ class TestLandscapeDistance:
         )
         avg_landscape = setup_landscape_distance._average_landscape(landscapes)
         assert isinstance(avg_landscape, PersistenceLandscape)
-        assert 0 in avg_landscape.data
+        assert 0 in avg_landscape.functions
 
     def test_transform(self, setup_landscape_distance):
         """Test the distance calculation between landscapes."""
@@ -51,7 +51,7 @@ class TestLandscapeDistance:
         )
         diff = setup_landscape_distance._subtract_landscapes(landscapes1[0], landscapes2[0])
         assert isinstance(diff, PersistenceLandscape)
-        assert 0 in diff.data
-        assert 1 in diff.data
-        assert isinstance(diff.data[0], np.ndarray)
-        assert isinstance(diff.data[1], np.ndarray)
+        assert 0 in diff.functions
+        assert 1 in diff.functions
+        assert isinstance(diff.functions[0], np.ndarray)
+        assert isinstance(diff.functions[1], np.ndarray)

@@ -44,14 +44,14 @@ class TestLandscape:
     def test_defaults(self):
         pl = PersistenceLandscape()
         assert pl.homology_dims == [0, 1]
-        assert pl.data == None
+        assert pl._functions == None
 
     def test_diagram_to_landscape(self, toy_pd):
         assert type(toy_pd[0]) == PersistenceDiagram
         dist = LandscapeDistance(None, None)
         pl = dist._convert_to_landscape(toy_pd)[0]
         assert type(pl) == PersistenceLandscape
-        assert pl.data != None
+        assert pl.functions != None
 
     def test_avg_landscape(self, toy_pd, toy_pd2):
         dist = LandscapeDistance(None, None)
@@ -59,4 +59,4 @@ class TestLandscape:
         pl2 = dist._convert_to_landscape(toy_pd2)[0]
         avg = dist._average_landscape([pl1, pl2])
         assert type(avg) == PersistenceLandscape
-        assert avg.data != None
+        assert avg.functions != None
