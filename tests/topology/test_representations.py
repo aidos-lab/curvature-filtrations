@@ -1,7 +1,11 @@
 import pytest
 import networkx as nx
 import numpy as np
-from curvature_filtrations.topology.representations import PersistenceDiagram, PersistenceLandscape
+from curvature_filtrations.topology.representations import (
+    PersistenceDiagram,
+    PersistenceLandscape,
+    PersistenceImage,
+)
 from curvature_filtrations.kilt import KILT
 from curvature_filtrations.topology.distances import LandscapeDistance
 
@@ -80,3 +84,22 @@ class TestLandscape:
             len(toy_landscape1.functions[toy_landscape1.homology_dims[0]])
             == toy_landscape1.num_functions * toy_landscape1.resolution
         )
+
+
+class TestImage:
+    """Class designed to test the functionality of the PersistenceImage class."""
+
+    def test_create_object(self):
+        """Test instantiation of a PersistenceImage object."""
+        img = PersistenceImage()
+        assert type(img) == PersistenceImage
+
+    def test_defaults(self):
+        """Test that the defaults are set correctly."""
+        img = PersistenceImage()
+        assert img.bandwidth == 1.0
+        # TODO: Check weight attribute
+        assert img.resolution == [20, 20]
+
+    def test_diagram_to_img(self, toy_pd):
+        pass
