@@ -2,7 +2,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
 import gudhi as gd
-from curvature_filtrations.topology.representations import PersistenceDiagram, PersistenceLandscape
+from curvature_filtrations.topology.representations import (
+    PersistenceDiagram,
+    PersistenceLandscape,
+    PersistenceImage,
+)
 
 
 class TopologicalDistance(ABC):
@@ -149,22 +153,54 @@ class LandscapeDistance(TopologicalDistance):
         return f"LandscapeDistance object between (1) [{self.diagram1}] and (2) [{self.diagram2}]"
 
 
-# Example dictionary to link supported distances
-supported_distances = {
-    "landscape": LandscapeDistance,
-}
-
-
-# TODO: Implement other distances
-# Some can support distributions!
 class ImageDistance(TopologicalDistance):
-    pass
+
+    def __init__(
+        self, diagram1, diagram2, norm=2, bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]
+    ) -> None:
+        super().__init__(diagram1, diagram2, norm)
+        self.bandwidth = bandwidth
+        self.weight = weight
+        self.resolution = resolution
+        self.image_transformer = gd.representations.PersistenceImage(
+            bandwidth=bandwidth, weight=weight, resolution=resolution
+        )
+
+    def supports_distribution(self) -> bool:
+        """Indicates support for distributions of persistence images."""
+        return True
+
+    def fit(self, **kwargs):
+        """Compute and return average persistence images for both diagrams."""
+        raise NotImplementedError
+
+    def transform(self, descriptor1, descriptor2) -> float:
+        """Compute the norm-based distance between two persistence images."""
+        raise NotImplementedError
+
+    def _convert_to_image(self, diagrams: List[PersistenceDiagram]) -> List[PersistenceImage]:
+        """Convert each persistence diagram in the given list into to a persistence image in the returned list."""
+        images = []
+
+        for diagram in diagrams:
+            img = PersistenceImage(
+                bandwidth=self.bandwidth, weight=self.weight, resolution=self.resolution
+            )
+            pixels = {}
+            for dim, points in diagram.persistence_pts.items():
+                transformed_points = self.image_transformer.fit_transform([points])[0]
+                print(type(transformed_points))
+                pixels[dim] = transformed_points
+            img.pixels = pixels
+            images.append(img)
+        return images
+
+    def __str__(self):
+        pass
 
 
 class SilhouetteDistance(TopologicalDistance):
     pass
 
 
-supported_distances = {
-    "landscape": LandscapeDistance,
-}
+supported_distances = {"landscape": LandscapeDistance, "image": ImageDistance}
