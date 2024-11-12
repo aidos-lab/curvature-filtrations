@@ -72,3 +72,11 @@ class TestLandscape:
         avg = dist._average_landscape([pl1, pl2])
         assert type(avg) == PersistenceLandscape
         assert avg.functions != None
+
+    def test_fixture_toy_landscape1(self, toy_landscape1):
+        """Checks the toy Landscape object used for tests."""
+        assert type(toy_landscape1) == PersistenceLandscape
+        assert (
+            len(toy_landscape1.functions[toy_landscape1.homology_dims[0]])
+            == toy_landscape1.num_functions * toy_landscape1.resolution
+        )
