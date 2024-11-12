@@ -224,12 +224,10 @@ class PersistenceImage:
         assert type(pixels) == dict
         # Assert length matches resolution
         for dim in self.homology_dims:
-            assert (
-                len(pixels[self.homology_dims[0]]) == self.resolution[0] * self.resolution[1]
-            ), f"Number of pixel values ({len(pixels[self.homology_dims[0]])}) does not match the resolution ({self.resolution})."
+            assert len(pixels[dim]) == self.resolution[0] * self.resolution[1]
         self._pixels = pixels
 
-    def get_img_for_dim(self, dimension: int) -> np.array:
+    def get_pixels_for_dim(self, dimension: int) -> np.array:
         """Returns a np.array representing the persistence image for the specified dimension."""
         assert (
             self._pixels != None
