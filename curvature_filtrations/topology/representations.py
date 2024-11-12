@@ -168,3 +168,70 @@ class PersistenceLandscape:
         """Returns a string representation of the PersistenceLandscape object."""
         name = f"This is a PersistenceLandscape object with the following attributes: Homology Dimensions ({self.homology_dims}), Number of Landscape Functions per Dimension ({self.num_functions}), resolution i.e. pts/landscape function ({self.resolution})"
         return name
+
+
+class PersistenceImage:
+    """
+    A wrapper object for the data housed in the image vectorization of a persistence diagram.
+
+    Attributes
+    ----------
+    bandwidth : double, default = 1.0
+        Controls the Gaussian kernel for the probability distribution calculated for each point on the birth/persistence diagram.
+        See gudhi documentation for more information.
+    weight : function, default = lambda x: 1
+        Defines the weight function used to compute the weighted sum of the probability distributions for each point on the bith/persistence diagram, i.e. the persistence surface.
+        Default is a constant function. Other common choices are a linear function or a bump function, which put greater emphasis on points with longer persistence.
+        See gudhi documentation for more information.
+    resolution : List[int, int], default = [20,20]
+        The dimensions of the persistence image in pixels.
+    _pixels : Dict[int, np.array]
+        A dictionary that maps each homology dimension to its persistence image in the form of a np.array.
+            Each np.array contains {resolution[0]} * {resolution[1]} floats, which are the values of the persistence surface at each pixel.
+        Initialized to None, set using setter method.
+
+
+    Methods
+    -------
+    functions:
+        Getter (self -> Dict[int, np.array]) and setter (self, Dict[int, np.array] -> None) for attribute self._pixels, which stores the persistence image data.
+    get_img_for_dim(self, dimension : int) -> np.array:
+        Returns the np.array value for the given homology dimension in the pixels dictionary.
+        This np.array is size resolution[0] * resolution[1] and stores the values of the persistence surface at each pixel (for the given homology dimension).
+    """
+
+    def __init__(self, bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]):
+        """Initializes an object of the PersistenceImage class."""
+        self.bandwidth = bandwidth
+        self.weight = weight
+        self.resolution = resolution
+
+        # Initialize image to None
+        self._pixels = None
+
+    @property
+    def pixels(self) -> Dict[int, np.array]:
+        """Getter for the dictionary of persistence images."""
+        return self._pixels
+
+    @pixels.setter
+    def pixels(self, functions: Dict[int, np.array]) -> None:
+        """Setter for the complete dictionary of landscape functions."""
+        assert type(functions) == dict
+        for dim in self.homology_dims:
+            assert (
+                len(functions[dim]) == self.num_functions * self.resolution
+            ), f"The length of the landscape function samples ({len(functions[dim])}) is not the product of the specified resolution ({self.resolution}) and number of landscape functions ({self.num_functions})."
+        # TODO: assert length is correct
+        self._pixels = functions
+
+    def get_img_for_dim(self, dimension: int) -> np.array:
+        """Returns a np.array of concatenated landscape functions for the specified dimension."""
+        assert (
+            self._pixels != None
+        ), "Landscape functions have not yet been added to the PersistenceLandscape object."
+        return self.pixels[dimension]
+
+    def __str__(self):
+        """Returns a string representation of the Image object."""
+        pass
