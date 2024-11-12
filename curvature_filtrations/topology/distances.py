@@ -87,6 +87,8 @@ class LandscapeDistance(TopologicalDistance):
         distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
         return distance
 
+    # TODO: fit_transform method
+
     def _convert_to_landscape(
         self, diagrams: List[PersistenceDiagram]
     ) -> List[PersistenceLandscape]:
@@ -136,6 +138,7 @@ class LandscapeDistance(TopologicalDistance):
         return avg_pl
 
     @staticmethod
+    # TODO: make it for common dimensions, not from landscape1
     def _subtract_landscapes(
         landscape1: PersistenceLandscape, landscape2: PersistenceLandscape
     ) -> PersistenceLandscape:
@@ -179,9 +182,12 @@ class ImageDistance(TopologicalDistance):
         avg2 = self._average_image(img2)
         return avg1, avg2
 
-    def transform(self, descriptor1, descriptor2) -> float:
+    def transform(self, image1, image2) -> float:
         """Compute the norm-based distance between two persistence images."""
-        raise NotImplementedError
+        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
+        difference = self._subtract_images(image1, image2)
+        distance = sum(self.norm(difference.pixels[dim]) for dim in common_dims)
+        return distance
 
     def _convert_to_image(self, diagrams: List[PersistenceDiagram]) -> List[PersistenceImage]:
         """Convert each persistence diagram in the given list into to a persistence image in the returned list."""
@@ -197,7 +203,6 @@ class ImageDistance(TopologicalDistance):
             pixels = {}
             for dim, points in diagram.persistence_pts.items():
                 transformed_points = self.image_transformer.fit_transform([points])[0]
-                print(type(transformed_points))
                 pixels[dim] = transformed_points
             img.pixels = pixels
             images.append(img)
@@ -232,6 +237,30 @@ class ImageDistance(TopologicalDistance):
         avg_img.pixels = avg_pixels
 
         return avg_img
+
+    # TODO: check that weight and other parameters are the same between images
+    def _subtract_images(
+        self, image1: PersistenceImage, image2: PersistenceImage
+    ) -> PersistenceImage:
+        """Subtract two images for each common dimension."""
+        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
+        assert (
+            image1.resolution == image2.resolution
+        ), "Cannot subtract images with different resolutions."
+        # Initialize PersistenceImage to return
+        diff_pi = PersistenceImage(
+            homology_dims=common_dims,
+            bandwidth=self.bandwidth,
+            weight=self.weight,
+            resolution=self.resolution,
+        )
+
+        # subtraction
+        diff_pixels = {}
+        for dim in common_dims:
+            diff_pixels[dim] = image1.get_pixels_for_dim(dim) - image2.get_pixels_for_dim(dim)
+        diff_pi.pixels = diff_pixels
+        return diff_pi
 
     def __str__(self):
         pass
