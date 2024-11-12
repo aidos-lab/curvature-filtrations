@@ -129,7 +129,6 @@ class PersistenceLandscape:
             assert (
                 len(functions[dim]) == self.num_functions * self.resolution
             ), f"The length of the landscape function samples ({len(functions[dim])}) is not the product of the specified resolution ({self.resolution}) and number of landscape functions ({self.num_functions})."
-        # TODO: assert length is correct
         self._functions = functions
 
     def get_fns_for_dim(self, dimension: int) -> np.array:
@@ -176,6 +175,8 @@ class PersistenceImage:
 
     Attributes
     ----------
+    homology_dims : List[int], default=[0, 1]
+        Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
     bandwidth : double, default = 1.0
         Controls the Gaussian kernel for the probability distribution calculated for each point on the birth/persistence diagram.
         See gudhi documentation for more information.
@@ -200,8 +201,11 @@ class PersistenceImage:
         This np.array is size resolution[0] * resolution[1] and stores the values of the persistence surface at each pixel (for the given homology dimension).
     """
 
-    def __init__(self, bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]):
+    def __init__(
+        self, homology_dims=[0, 1], bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]
+    ):
         """Initializes an object of the PersistenceImage class."""
+        self.homology_dims = homology_dims
         self.bandwidth = bandwidth
         self.weight = weight
         self.resolution = resolution
@@ -215,23 +219,23 @@ class PersistenceImage:
         return self._pixels
 
     @pixels.setter
-    def pixels(self, functions: Dict[int, np.array]) -> None:
-        """Setter for the complete dictionary of landscape functions."""
-        assert type(functions) == dict
+    def pixels(self, pixels: Dict[int, np.array]) -> None:
+        """Setter for the dictionary of persistence images."""
+        assert type(pixels) == dict
+        # Assert length matches resolution
         for dim in self.homology_dims:
             assert (
-                len(functions[dim]) == self.num_functions * self.resolution
-            ), f"The length of the landscape function samples ({len(functions[dim])}) is not the product of the specified resolution ({self.resolution}) and number of landscape functions ({self.num_functions})."
-        # TODO: assert length is correct
-        self._pixels = functions
+                len(pixels[self.homology_dims[0]]) == self.resolution[0] * self.resolution[1]
+            ), f"Number of pixel values ({len(pixels[self.homology_dims[0]])}) does not match the resolution ({self.resolution})."
+        self._pixels = pixels
 
     def get_img_for_dim(self, dimension: int) -> np.array:
-        """Returns a np.array of concatenated landscape functions for the specified dimension."""
+        """Returns a np.array representing the persistence image for the specified dimension."""
         assert (
             self._pixels != None
-        ), "Landscape functions have not yet been added to the PersistenceLandscape object."
+        ), "Persistence image pixel values have not yet been added to the PersistenceImage object."
         return self.pixels[dimension]
 
     def __str__(self):
         """Returns a string representation of the Image object."""
-        pass
+        return f"PersistenceImage object with the following attributes: Homology Dims ({self.homology_dims}), Bandwidth ({self.bandwidth}), Weight ({self.weight}), Resolution ({self.resoltuion})"
