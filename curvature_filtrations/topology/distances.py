@@ -172,7 +172,12 @@ class ImageDistance(TopologicalDistance):
 
     def fit(self, **kwargs):
         """Compute and return average persistence images for both diagrams."""
-        raise NotImplementedError
+        img1 = self._convert_to_image(self.diagram1)
+        img2 = self._convert_to_image(self.diagram2)
+
+        avg1 = self._average_image(img1)
+        avg2 = self._average_image(img2)
+        return avg1, avg2
 
     def transform(self, descriptor1, descriptor2) -> float:
         """Compute the norm-based distance between two persistence images."""
@@ -184,7 +189,10 @@ class ImageDistance(TopologicalDistance):
 
         for diagram in diagrams:
             img = PersistenceImage(
-                bandwidth=self.bandwidth, weight=self.weight, resolution=self.resolution
+                homology_dims=diagram.homology_dims,
+                bandwidth=self.bandwidth,
+                weight=self.weight,
+                resolution=self.resolution,
             )
             pixels = {}
             for dim, points in diagram.persistence_pts.items():
@@ -194,6 +202,36 @@ class ImageDistance(TopologicalDistance):
             img.pixels = pixels
             images.append(img)
         return images
+
+    def _average_image(self, images: List[PersistenceImage]) -> PersistenceImage:
+        """Computes the average persistence image given multiple persistence images."""
+        avg_pixels = {}
+
+        # sum up pixel values across all images
+        for img in images:
+            for dim, pixels in img.pixels.items():
+                # if dim not yet instantiated in avg_image, create np.array of 0s with correct length
+                if dim not in avg_pixels:
+                    avg_pixels[dim] = np.zeros_like(pixels)
+                # add pixel values to existing pixel values
+                avg_pixels[dim] += pixels
+
+        # divide pixel values by # of images
+        for dim in avg_pixels:
+            avg_pixels[dim] /= len(images)
+
+        # create a PersistenceImage to return
+        avg_img = PersistenceImage(
+            homology_dims=list(avg_pixels.keys()),
+            bandwidth=self.bandwidth,
+            weight=self.weight,
+            resolution=self.resolution,
+        )
+
+        # add avg. image values to avg. PersistenceImage object
+        avg_img.pixels = avg_pixels
+
+        return avg_img
 
     def __str__(self):
         pass
