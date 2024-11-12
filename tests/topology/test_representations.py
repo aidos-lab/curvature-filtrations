@@ -97,6 +97,7 @@ class TestImage:
     def test_defaults(self):
         """Test that the defaults are set correctly."""
         img = PersistenceImage()
+        assert img.homology_dims == [0, 1]
         assert img.bandwidth == 1.0
         # TODO: Check weight attribute
         assert img.resolution == [20, 20]

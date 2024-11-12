@@ -79,6 +79,17 @@ class TestImageDistance:
         img = ID._convert_to_image(toy_pd)
         assert type(img) == list
         assert type(img[0]) == PersistenceImage
-        print(f"Type of pixels attribute: {type(img[0].pixels)}")
-        print(f"Shape of pixels np.array: {img[0].pixels[0].shape}")
-        print(f"Pixels example: {img[0].pixels}")
+        assert img[0].pixels != None
+
+    def test_fit(self, toy_pd, toy_pd2):
+        ID = ImageDistance(toy_pd, toy_pd2, norm=2)
+        avg1, avg2 = ID.fit()
+        assert type(avg1) == PersistenceImage
+        assert type(avg2) == PersistenceImage
+        assert avg1.pixels != None
+        assert avg2.pixels != None
+
+    def test_transform(self, toy_pd, toy_pd2):
+        ID = ImageDistance(toy_pd, toy_pd2, norm=2)
+        avg1, avg2 = ID.fit()
+        assert type(ID.transform(avg1, avg2)) == np.float64
