@@ -34,7 +34,7 @@ class KILT:
         weight. If None, unweighted curvature is calculated. Notice that for Ollivier--Ricci curvature, if `prob_fn` is provided, this parameter will have no effect for the calculation of probability measures, but it will be used for the calculation of shortest-path distances.
 
     prob_fn : callable or None, default=None
-        Used on if Ollivier--Ricci curvature is calculated, with default None. If set, should refer to a function that calculate a probability measure for a given graph and a given node. This callable needs to satisfy the following signature:
+        Used only if Ollivier--Ricci curvature is calculated, with default None. If set, should refer to a function that calculate a probability measure for a given graph and a given node. This callable needs to satisfy the following signature:
 
         ``prob_fn(G, node, node_to_index)``
 
