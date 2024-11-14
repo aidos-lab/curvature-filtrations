@@ -236,4 +236,4 @@ class PersistenceImage:
 
     def __str__(self):
         """Returns a string representation of the Image object."""
-        return f"PersistenceImage object with the following attributes: Homology Dims ({self.homology_dims}), Bandwidth ({self.bandwidth}), Weight ({self.weight}), Resolution ({self.resoltuion})"
+        return f"PersistenceImage object with the following attributes: Homology Dims ({self.homology_dims}), Bandwidth ({self.bandwidth}), Weight ({self.weight}), Resolution ({self.resolution})"
