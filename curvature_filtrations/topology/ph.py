@@ -56,7 +56,7 @@ class GraphHomology:
 
     def calculate_persistent_homology(
         self, G: nx.Graph, extended_persistence: bool = False
-    ) -> Dict[int, List[Tuple[float, float]]]:
+    ) -> PersistenceDiagram:
         """
         Calculates persistent homology of the graph's clique complex.
 
@@ -119,7 +119,7 @@ class GraphHomology:
 
         return st
 
-    def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree) -> Dict[int, np.array]:
+    def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree) -> PersistenceDiagram:
         """
         Converts a gd.SimplexTree into a PersistenceDiagram object.
 
