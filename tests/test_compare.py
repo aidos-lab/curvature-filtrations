@@ -78,3 +78,20 @@ class TestComparator:
         assert comp.descriptor2 is not None
 
         comp.fit(graph_distribution1, graph_distribution2)
+
+    def test_fit_transform(self, graph, graph2):
+        comp = Comparator(measure="ollivier_ricci_curvature")
+        distance = comp.fit_transform(graph, graph2, metric="image")
+        print(distance)
+        assert isinstance(distance, float)
+
+    def test_kilterator(self, graph):
+        comp = Comparator()
+        pd = comp._kilterator(graph)
+        assert isinstance(pd, PersistenceDiagram)
+
+    def test_curvature_filtration(self, graph_distribution1):
+        comp = Comparator()
+        pds = comp._curvature_filtration(graph_distribution1)
+        assert isinstance(pds, list)
+        assert isinstance(pds[0], PersistenceDiagram)
