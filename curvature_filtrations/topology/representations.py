@@ -194,7 +194,7 @@ class PersistenceImage:
 
     Methods
     -------
-    functions:
+    pixels:
         Getter (self -> Dict[int, np.array]) and setter (self, Dict[int, np.array] -> None) for attribute self._pixels, which stores the persistence image data.
     get_img_for_dim(self, dimension : int) -> np.array:
         Returns the np.array value for the given homology dimension in the pixels dictionary.
