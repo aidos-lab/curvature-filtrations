@@ -7,7 +7,7 @@ from curvature_filtrations.topology.representations import (
     PersistenceImage,
 )
 from curvature_filtrations.kilt import KILT
-from curvature_filtrations.topology.distances import LandscapeDistance
+from curvature_filtrations.topology.distances import LandscapeDistance, ImageDistance
 
 
 class TestDiagram:
@@ -102,5 +102,13 @@ class TestImage:
         # TODO: Check weight attribute
         assert img.resolution == [20, 20]
 
-    def test_diagram_to_img(self, toy_pd):
-        pass
+    def test_diagram_to_img(self, toy_pd, toy_pd2):
+        """Test conversion of PersistenceDiagram to PersistenceImage"""
+        ID = ImageDistance(toy_pd, toy_pd2)
+        pi1 = ID._convert_to_image(toy_pd)[0]
+        pi2 = ID._convert_to_image(toy_pd2)[0]
+        avg = ID._average_image([pi1, pi2])
+        assert type(avg) == PersistenceImage
+        assert avg.pixels != None
+        assert np.all(avg.get_pixels_for_dim(0) == avg.pixels[0])
+        assert len(avg.get_pixels_for_dim(0)) == avg.resolution[0] * avg.resolution[1]
