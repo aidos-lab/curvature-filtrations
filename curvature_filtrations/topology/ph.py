@@ -149,4 +149,5 @@ class GraphHomology:
 
     @staticmethod
     def _mask_infinities(array):
+        """Removes infinite values from an array"""
         return array[array[:, 1] < np.inf]
