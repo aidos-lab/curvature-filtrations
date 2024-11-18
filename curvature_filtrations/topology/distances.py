@@ -96,7 +96,7 @@ class LandscapeDistance(TopologicalDistance):
     landscape_transformer : gudhi package object
         The object that powers the transformation of persistence diagrams to persistence landscapes.
 
-    Core Methods
+    Methods
     -------
     supports_distribution() -> True :
         Indicates that LandscapeDistance supports comparison between distributions.
@@ -133,13 +133,13 @@ class LandscapeDistance(TopologicalDistance):
             resolution=resolution, num_landscapes=num_functions
         )
 
-    #  ╭──────────────────────────────────────────────────────────╮
-    #  │ Core Methods                                             │
-    #  ╰──────────────────────────────────────────────────────────╯
-
     def supports_distribution(self) -> bool:
         """Indicates support for distributions of persistence diagrams."""
         return True
+
+    #  ╭──────────────────────────────────────────────────────────╮
+    #  │ Core Methods: Fit & Transform                            │
+    #  ╰──────────────────────────────────────────────────────────╯
 
     def fit(self, **kwargs):
         """Computes and returns persistence landscapes from the persistence diagrams, diagram1 and diagram2 (or the average persistence landscapes, if diagram1 and/or diagram2 are distributions.
@@ -187,7 +187,15 @@ class LandscapeDistance(TopologicalDistance):
         distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
         return distance
 
-    # TODO: fit_transform method
+    def fit_transform(self) -> float:
+        """Generates persistence landscapes for diagram1, diagram2 and computes the distance between them.
+        Returns
+        -------
+        float :
+            The distance between diagram1 and diagram2, computed via landscape vectorization.
+        """
+        avg1, avg2 = self.fit()
+        return self.transform(avg1, avg2)
 
     #  ╭──────────────────────────────────────────────────────────╮
     #  │ Helper Functions                                         │
@@ -316,7 +324,7 @@ class ImageDistance(TopologicalDistance):
         return True
 
     #  ╭──────────────────────────────────────────────────────────╮
-    #  │ Core Methods                                             │
+    #  │ Core Methods: Fit & Transform                            │
     #  ╰──────────────────────────────────────────────────────────╯
 
     def fit(self, **kwargs):
@@ -363,6 +371,16 @@ class ImageDistance(TopologicalDistance):
         difference = self._subtract_images(image1, image2)
         distance = sum(self.norm(difference.pixels[dim]) for dim in common_dims)
         return distance
+
+    def fit_transform(self) -> float:
+        """Generates persistence images for diagram1, diagram2 and computes the distance between them.
+        Returns
+        -------
+        float :
+            The distance between diagram1 and diagram2, computed via image vectorization.
+        """
+        avg1, avg2 = self.fit()
+        return self.transform(avg1, avg2)
 
     #  ╭──────────────────────────────────────────────────────────╮
     #  │ Helper Functions                                         │
