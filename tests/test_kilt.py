@@ -7,12 +7,15 @@ from curvature_filtrations.topology.ph import PersistenceDiagram
 
 
 class TestKILT:
+    """Class designed to test the functionality of the KILT class."""
 
     def test_create_object(self):
+        """Test initialization of KILT instance."""
         klt = KILT()
         assert type(klt) == KILT
 
     def test_defaults(self):
+        """Test default attributes of KILT object."""
         klt = KILT()
         assert klt.measure == "forman_curvature"
         assert klt.weight == None
@@ -21,10 +24,12 @@ class TestKILT:
         assert klt.prob_fn == None
 
     def test_wrong_measure(self):
+        """Checks that initialization fails when unsupported measure is inputted."""
         with pytest.raises(AssertionError):
             KILT(measure="wrong_measure")
 
     def test_G_get_set(self, graph):
+        """Tests setter and getter methods for attribute G."""
         klt = KILT()
         assert klt.G is None
         klt.G = graph
@@ -33,6 +38,7 @@ class TestKILT:
         assert klt.G != graph  # We're copying!
 
     def test_curvature_get_set(self, graph):
+        """Tests setter and getter methods for attribute curvature."""
         klt = KILT()
         # Get Curvature before computing raises error
         assert klt.curvature is None
@@ -50,6 +56,7 @@ class TestKILT:
         assert klt.curvature.shape == (len(graph.edges),)
 
     def test_kilt_forman(self, graph):
+        """Tests forman curvature calculation."""
         klt = KILT(measure="forman_curvature")
         klt.fit(graph)
         curvature = measures.forman_curvature(graph)
@@ -57,6 +64,7 @@ class TestKILT:
         assert np.array_equal(klt.curvature, curvature)
 
     def test_kilt_orc(self, graph):
+        """Tests olliver-ricci curvature calculation."""
         klt = KILT(measure="ollivier_ricci_curvature")
         klt.fit(graph)
         curvature = measures.ollivier_ricci_curvature(graph)
@@ -64,6 +72,7 @@ class TestKILT:
         assert np.array_equal(klt.curvature, curvature)
 
     def test_kilt_resistance(self, small_graph):
+        """Tests resistance curvature calculation."""
         klt = KILT(measure="resistance_curvature")
         klt.fit(small_graph)
         curvature = measures.resistance_curvature(small_graph)
@@ -71,6 +80,7 @@ class TestKILT:
         assert np.array_equal(klt.curvature, curvature)
 
     def test_fit(self, graph):
+        """Tests fit() method."""
         klt = KILT(measure="forman_curvature")
         assert klt.G is None
         assert klt.fit(graph) is None
@@ -79,6 +89,7 @@ class TestKILT:
         assert isinstance(klt.curvature, np.ndarray)
 
     def test_transform(self, graph, regular_homology_dims):
+        """Tests transform() method."""
         klt = KILT(measure="forman_curvature")
 
         with pytest.raises(AssertionError):
@@ -101,6 +112,7 @@ class TestKILT:
             isinstance(diagram.get_pts_for_dim(dim), np.ndarray)
 
     def test_fit_transform(self, graph, graph2, small_graph):
+        """Tests fit_transform() method."""
         klt = KILT(measure="forman_curvature")
         diagram1 = klt.fit_transform(graph)
         curv1 = klt.curvature
