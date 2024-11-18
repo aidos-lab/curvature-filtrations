@@ -128,7 +128,7 @@ class Comparator:
         self.descriptor1, self.descriptor2 = self.distance.fit(**kwargs)
 
     def transform(self) -> float:
-        """Computes the numeric distance between topological descriptors, self.descriptor1 and self.descriptor2.
+        """Computes the numeric distance between topological descriptors, i.e. attributes self.descriptor1 and self.descriptor2.
         Can only be run after fit().
 
         Returns
@@ -159,7 +159,7 @@ class Comparator:
         Returns
         -------
         float :
-            The distance between the G1 and G2.
+            The distance between G1 and G2.
         """
         self.fit(G1, G2, metric)
         return self.transform()
