@@ -5,36 +5,43 @@ import numpy as np
 
 @pytest.fixture
 def graph():
+    """Toy graph with 100 nodes."""
     return nx.erdos_renyi_graph(100, 0.1)
 
 
 @pytest.fixture
 def graph2():
+    """Toy graph with 100 nodes."""
     return nx.erdos_renyi_graph(100, 0.1)
 
 
 @pytest.fixture
 def small_graph():
+    """Toy graph with 20 nodes."""
     return nx.erdos_renyi_graph(20, 0.5)
 
 
 @pytest.fixture
 def empty_graph():
+    """Toy empty graph."""
     return nx.Graph()
 
 
 @pytest.fixture
 def graph_distribution1():
+    """List of 8 randomly generated graphs of 100 nodes each."""
     return [nx.erdos_renyi_graph(100, np.random.rand()) for _ in range(8)]
 
 
 @pytest.fixture
 def graph_distribution2():
+    """List of 10 randomly generated graphs of 100 nodes each."""
     return [nx.erdos_renyi_graph(100, np.random.rand()) for _ in range(10)]
 
 
 @pytest.fixture
 def regular_homology_dims():
+    """Default homology dimensions."""
     return [0, 1]
 
 

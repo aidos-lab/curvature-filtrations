@@ -55,6 +55,20 @@ def toy_pd2(toy_diagram2):
 
 
 @pytest.fixture
+def toy_landscape1(toy_pd):
+    """Toy PersistenceLandscape Object (created from toy_pd)"""
+    dist = LandscapeDistance(None, None)
+    return dist._convert_to_landscape(toy_pd)[0]
+
+
+@pytest.fixture
+def toy_landscape2(toy_pd2):
+    """Toy PersistenceLandscape Object (created from toy_pd2)"""
+    dist = LandscapeDistance(None, None)
+    return dist._convert_to_landscape(toy_pd2)[0]
+
+
+@pytest.fixture
 def setup_landscape_distance(toy_pd, toy_pd2):
     """Fixture to set up the LandscapeDistance instance and sample diagrams."""
     landscape_distance = LandscapeDistance(toy_pd, toy_pd2, norm=2, resolution=1000)

@@ -5,9 +5,7 @@ from typing import List, Tuple, Optional, Dict
 
 
 import curvature_filtrations.geometry.measures as measures
-from curvature_filtrations.topology.ph import (
-    GraphHomology,
-)
+from curvature_filtrations.topology.ph import GraphHomology
 
 # methods for calculating curvature that KILT currently supports
 CURVATURE_MEASURES = [
@@ -36,7 +34,7 @@ class KILT:
         weight. If None, unweighted curvature is calculated. Notice that for Ollivier--Ricci curvature, if `prob_fn` is provided, this parameter will have no effect for the calculation of probability measures, but it will be used for the calculation of shortest-path distances.
 
     prob_fn : callable or None, default=None
-        Used on if Ollivier--Ricci curvature is calculated, with default None. If set, should refer to a function that calculate a probability measure for a given graph and a given node. This callable needs to satisfy the following signature:
+        Used only if Ollivier--Ricci curvature is calculated, with default None. If set, should refer to a function that calculate a probability measure for a given graph and a given node. This callable needs to satisfy the following signature:
 
         ``prob_fn(G, node, node_to_index)``
 
@@ -85,21 +83,6 @@ class KILT:
         # Initialize graph
         self._G = None
 
-    def __str__(self) -> str:
-        """Return a string representation of the KILT object and any custom attributes."""
-        name = f"KILT Object with Measure: {self.measure}, Graph: {self.G}"
-        if self.weight != None:
-            name += f", Custom Weight Attribute: {self.weight}"
-        if self.alpha != 0.0:
-            name += f", Custom Alpha: {self.alpha}"
-        if self.prob_fn != None:
-            name += f", Custom Probability Function: {self.prob_fn}"
-        return name
-
-    def __repr__(self) -> str:
-        """Return a string representation of the KILT object."""
-        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
-
     #  ╭──────────────────────────────────────────────────────────╮
     #  │ Getters and Setters                                      │
     #  ╰──────────────────────────────────────────────────────────╯
@@ -111,7 +94,7 @@ class KILT:
 
     @G.setter
     def G(self, graph) -> None:
-        """Setter method which sets the given graph as the KILT object's graph attribute."""
+        """Setter method which sets the given nx.Graph as the KILT object's graph attribute."""
         self._G = graph.copy()
 
     @property
@@ -133,7 +116,8 @@ class KILT:
 
     def fit(self, graph) -> None:
         """
-        Calculates the curvature values for the edges of the given graph according to the specifications of the KILT object, which can then be retrieved via the curvature attribute.
+        Calculates the curvature values for the edges of the given graph according to the specifications of the KILT object
+        Curvature values are can then be retrieved via the curvature attribute.
 
         Parameters
         ----------
@@ -162,6 +146,7 @@ class KILT:
     ) -> Dict[int, np.array]:
         """
         Executes a curvature filtration for the given homology dimensions.
+        Can only be run after fit(), as it requires edge curvature values to execute a filtration.
 
         Parameters
         ----------
@@ -171,7 +156,7 @@ class KILT:
         Returns
         -------
         PersistenceDiagram
-            A persistence diagram wrapper for the topological information from a curvature filtration.
+            A persistence diagram wrapper for the topological information resulting from a curvature filtration.
             Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         ph = GraphHomology(homology_dims, self.measure)
@@ -192,7 +177,8 @@ class KILT:
             1,
         ],
     ) -> Dict[int, np.array]:
-        """Computes the curvature values for the given graph according to the specifications of the KILT object and executes a filtration for the given homology dimensions.
+        """Runs fit(graph) and transform(homology_dims) in succession.
+        Thus computes the curvature values for the given graph and executes a filtration for the given homology dimensions.
 
         Parameters
         ----------
@@ -204,7 +190,7 @@ class KILT:
         Returns
         -------
         PersistenceDiagram
-            A persistence diagram wrapper for the topological information from a curvature filtration.
+            A persistence diagram wrapper for the topological information resulting from a curvature filtration.
             Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
         self.fit(graph)
@@ -248,3 +234,18 @@ class KILT:
     def _pack_curvature_values(edges, values) -> dict:
         """Converts corresponding lists of edges and curvature values into a dictionary mapping edges to their curvature value."""
         return dict(zip(edges, values))
+
+    def __str__(self) -> str:
+        """Return a string representation of the KILT object and any custom attributes."""
+        name = f"KILT Object with Measure: {self.measure}, Graph: {self.G}"
+        if self.weight != None:
+            name += f", Custom Weight Attribute: {self.weight}"
+        if self.alpha != 0.0:
+            name += f", Custom Alpha: {self.alpha}"
+        if self.prob_fn != None:
+            name += f", Custom Probability Function: {self.prob_fn}"
+        return name
+
+    def __repr__(self) -> str:
+        """Return a string representation of the KILT object."""
+        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
