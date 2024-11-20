@@ -21,7 +21,7 @@ class KILT:
 
     Attributes
     ----------
-    measure : string, default= "foreman_curvature"
+    measure : string, default= "forman_curvature"
         The type of curvature measure to be calculated. See CURVATURE_MEASURES for the methods that KILT functionality currently supports.
 
     alpha : float, default=0.0
