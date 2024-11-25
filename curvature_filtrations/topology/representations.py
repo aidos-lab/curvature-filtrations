@@ -202,7 +202,11 @@ class PersistenceImage:
     """
 
     def __init__(
-        self, homology_dims=[0, 1], bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]
+        self,
+        homology_dims=[0, 1],
+        bandwidth=1.0,
+        weight=lambda x: 1,
+        resolution=[20, 20],
     ):
         """Initializes an object of the PersistenceImage class."""
         self.homology_dims = homology_dims
