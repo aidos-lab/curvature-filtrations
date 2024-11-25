@@ -1,12 +1,10 @@
-from typing import List, Tuple, Optional, Dict
-from enum import Enum
+from typing import List, Optional
 
 import gudhi as gd
 import gudhi.representations
 import gudhi.wasserstein
 import networkx as nx
 import numpy as np
-from joblib import Parallel, delayed
 from curvature_filtrations.topology.representations import PersistenceDiagram
 
 SMALL_NONZERO_FEATURE = [1e-15, 1e-14]
