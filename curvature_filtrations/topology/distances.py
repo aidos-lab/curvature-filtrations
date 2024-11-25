@@ -109,7 +109,9 @@ class LandscapeDistance(TopologicalDistance):
         Runs fit() to create two persistence landscapes and then transform() to calculate the distance between them.
     """
 
-    def __init__(self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5) -> None:
+    def __init__(
+        self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5
+    ) -> None:
         """
         Creates a LandscapeDistance object for two persistence diagrams (or lists of persistence diagrams).
 
@@ -181,10 +183,14 @@ class LandscapeDistance(TopologicalDistance):
         float :
             The norm-based distance between the two given persistence landscapes.
         """
-        common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
+        common_dims = set(landscape1.homology_dims).intersection(
+            landscape2.homology_dims
+        )
         difference = self._subtract_landscapes(landscape1, landscape2)
 
-        distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
+        distance = sum(
+            self.norm(difference.functions[dim]) for dim in common_dims
+        )
         return distance
 
     def fit_transform(self) -> float:
@@ -215,7 +221,9 @@ class LandscapeDistance(TopologicalDistance):
             )
             landscape_functions = {}
             for dim, points in diagram.persistence_pts.items():
-                transformed_points = self.landscape_transformer.fit_transform([points])[0]
+                transformed_points = self.landscape_transformer.fit_transform(
+                    [points]
+                )[0]
                 landscape_functions[dim] = transformed_points
             # set to PersistenceLandscape functions attribute
             landscape.functions = landscape_functions
@@ -224,7 +232,9 @@ class LandscapeDistance(TopologicalDistance):
         return landscapes
 
     @staticmethod
-    def _average_landscape(landscapes: List[PersistenceLandscape]) -> PersistenceLandscape:
+    def _average_landscape(
+        landscapes: List[PersistenceLandscape],
+    ) -> PersistenceLandscape:
         """Compute and return the average persistence landscape across multiple landscapes."""
         avg_landscape = {}
         # sum landscape functions
@@ -257,12 +267,16 @@ class LandscapeDistance(TopologicalDistance):
             landscape1.resolution == landscape2.resolution
             and landscape1.num_functions == landscape2.num_functions
         ), "Cannot subtract landscapes with different resolutions or number of landscape functions."
-        common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
+        common_dims = set(landscape1.homology_dims).intersection(
+            landscape2.homology_dims
+        )
         # Initialize PersistenceLandscape to return
         diff_pl = PersistenceLandscape(common_dims)
         diff_functions = {}
         for dim in common_dims:
-            diff_functions[dim] = landscape1.get_fns_for_dim(dim) - landscape2.get_fns_for_dim(dim)
+            diff_functions[dim] = landscape1.get_fns_for_dim(
+                dim
+            ) - landscape2.get_fns_for_dim(dim)
         diff_pl.functions = diff_functions
         return diff_pl
 
@@ -309,7 +323,13 @@ class ImageDistance(TopologicalDistance):
     """
 
     def __init__(
-        self, diagram1, diagram2, norm=2, bandwidth=1.0, weight=lambda x: 1, resolution=[20, 20]
+        self,
+        diagram1,
+        diagram2,
+        norm=2,
+        bandwidth=1.0,
+        weight=lambda x: 1,
+        resolution=[20, 20],
     ) -> None:
         super().__init__(diagram1, diagram2, norm)
         self.bandwidth = bandwidth
@@ -367,7 +387,9 @@ class ImageDistance(TopologicalDistance):
         float :
             The norm-based distance between the two given persistence landscapes.
         """
-        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
+        common_dims = set(image1.homology_dims).intersection(
+            image2.homology_dims
+        )
         difference = self._subtract_images(image1, image2)
         distance = sum(self.norm(difference.pixels[dim]) for dim in common_dims)
         return distance
@@ -386,7 +408,9 @@ class ImageDistance(TopologicalDistance):
     #  │ Helper Functions                                         │
     #  ╰──────────────────────────────────────────────────────────╯
 
-    def _convert_to_image(self, diagrams: List[PersistenceDiagram]) -> List[PersistenceImage]:
+    def _convert_to_image(
+        self, diagrams: List[PersistenceDiagram]
+    ) -> List[PersistenceImage]:
         """Convert each persistence diagram in the given list into to a persistence image in the returned list."""
         images = []
 
@@ -399,13 +423,17 @@ class ImageDistance(TopologicalDistance):
             )
             pixels = {}
             for dim, points in diagram.persistence_pts.items():
-                transformed_points = self.image_transformer.fit_transform([points])[0]
+                transformed_points = self.image_transformer.fit_transform(
+                    [points]
+                )[0]
                 pixels[dim] = transformed_points
             img.pixels = pixels
             images.append(img)
         return images
 
-    def _average_image(self, images: List[PersistenceImage]) -> PersistenceImage:
+    def _average_image(
+        self, images: List[PersistenceImage]
+    ) -> PersistenceImage:
         """Computes the average persistence image given multiple persistence images."""
         avg_pixels = {}
 
@@ -440,7 +468,9 @@ class ImageDistance(TopologicalDistance):
         self, image1: PersistenceImage, image2: PersistenceImage
     ) -> PersistenceImage:
         """Subtracts two images for each common dimension, returning a PersistenceImage that represents the difference."""
-        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
+        common_dims = set(image1.homology_dims).intersection(
+            image2.homology_dims
+        )
         assert (
             image1.resolution == image2.resolution
         ), "Cannot subtract images with different resolutions."
@@ -454,7 +484,9 @@ class ImageDistance(TopologicalDistance):
         # subtraction
         diff_pixels = {}
         for dim in common_dims:
-            diff_pixels[dim] = image1.get_pixels_for_dim(dim) - image2.get_pixels_for_dim(dim)
+            diff_pixels[dim] = image1.get_pixels_for_dim(
+                dim
+            ) - image2.get_pixels_for_dim(dim)
         diff_pi.pixels = diff_pixels
         return diff_pi
 
