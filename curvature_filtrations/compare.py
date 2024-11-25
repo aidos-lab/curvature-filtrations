@@ -18,8 +18,12 @@ class Comparator:
     ----------
     kilt : KILT
         The KILT object facilitates computing discrete curvature values for graphs.
-    ph : GraphHomology
-        The GraphHomology object executes an edge filtration based on curvature values, i.e. computes persistent homology.
+    homology_dims : List[int]
+        Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1). Default is [0, 1], the usual choice for graphs.
+
+    extended_persistence : bool
+        If True, the extended persistence diagram is computed. Default is False.
+
     descriptor1 : One of {PersistenceDiagram (default), PersistenceImage}
         The summarizing topological descriptor for G1, which encodes persistent homology information.
     descriptor2 : One of {PersistenceDiagram (default), PersistenceImage}
@@ -56,6 +60,7 @@ class Comparator:
         alpha=0.0,
         prob_fn=None,
         homology_dims: Optional[List[int]] = [0, 1],
+        extended_persistence: bool = False,
     ) -> None:
         """
         Parameters
@@ -81,6 +86,9 @@ class Comparator:
             Dimensions of the homology groups to compute (e.g., [0, 1] for H_0 and H_1).
             Default is [0, 1].
 
+        extended_persistence : bool
+            If True, the extended persistence diagram is computed. Default is False.
+
         Returns
         -------
         None
@@ -88,7 +96,8 @@ class Comparator:
 
         # Initialize Curvature and GraphHomology objects
         self.kilt = KILT(measure, weight, alpha, prob_fn)
-        self.ph = GraphHomology(homology_dims, measure)
+        self.homology_dims = homology_dims
+        self.extended_persistence = extended_persistence
 
         self.descriptor1 = None
         self.descriptor2 = None
@@ -184,7 +193,12 @@ class Comparator:
 
     def _kilterator(self, graph):
         """Computes a curvature filtration for one graph, returning a PersistenceDiagram."""
-        return self.kilt.fit_transform(graph, self.ph.homology_dims)
+        return self.kilt.fit_transform(
+            graph,
+            homology_dims=self.homology_dims,
+            extended_persistence=self.extended_persistence,
+            mask_infinite_features=True,
+        )
 
     @staticmethod
     def _format_inputs(G):
@@ -215,4 +229,4 @@ class Comparator:
 
     def __repr__(self) -> str:
         """Returns a string representation of the Comparator object helpful to the developer."""
-        return f"Comparator({self.kilt}, {self.descriptor1}, {self.descriptor2}, {self.ph})"
+        return f"Comparator({self.kilt}, {self.descriptor1}, {self.descriptor2}, {self.homology_dims}, {self.extended_persistence})"
