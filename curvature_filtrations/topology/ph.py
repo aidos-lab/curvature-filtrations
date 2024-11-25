@@ -37,7 +37,9 @@ class GraphHomology:
     def __init__(
         self,
         homology_dims: Optional[List[int]] = None,
-        filter_attribute: str = "curvature",  # TODO: maybe we pass specific attribute names so there can be multiple curvatures for a single graph?
+        filter_attribute: str = "curvature",
+        mask_infinite_features: bool = False,
+        extended_persistence: bool = True,
     ):
         """
         Initializes the GraphHomology class with parameters for homology computation.
@@ -50,13 +52,15 @@ class GraphHomology:
         filter_attribute : str, optional
             The edge attribute to use as the filtration value. Default is "curvature".
         """
-        self.homology_dims = homology_dims if homology_dims is not None else [0, 1]
+        self.homology_dims = (
+            homology_dims if homology_dims is not None else [0, 1]
+        )
         self.filter_attribute = filter_attribute
-        self.max_dimension = max(self.homology_dims)
+        self.max_dimension = max(self.homology_dims) + 1
+        self.mask_infinite_features = mask_infinite_features
+        self.extended_persistence = extended_persistence
 
-    def calculate_persistent_homology(
-        self, G: nx.Graph, extended_persistence: bool = False
-    ) -> PersistenceDiagram:
+    def calculate_persistent_homology(self, G: nx.Graph) -> PersistenceDiagram:
         """
         Calculates persistent homology of the graph's clique complex.
 
@@ -79,7 +83,7 @@ class GraphHomology:
         simplex_tree = self._build_simplex_tree(G)
         simplex_tree.make_filtration_non_decreasing()
         simplex_tree.expansion(self.max_dimension)
-        if extended_persistence:
+        if self.extended_persistence:
             simplex_tree.extended_persistence()
         else:
             simplex_tree.persistence(persistence_dim_max=True)
@@ -119,7 +123,9 @@ class GraphHomology:
 
         return st
 
-    def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree) -> PersistenceDiagram:
+    def _format_persistence_diagrams(
+        self, simplex_tree: gd.SimplexTree
+    ) -> PersistenceDiagram:
         """
         Converts a gd.SimplexTree into a PersistenceDiagram object.
 
@@ -137,17 +143,40 @@ class GraphHomology:
         # initialize PersistenceDiagram object
         diagram = PersistenceDiagram(self.homology_dims)
         # format dictionary of mapping persistence points to homology dimensions for input into PersistenceDiagram object
-        persistance_pts = {}
+        persistence_pts = {}
         for dim in self.homology_dims:
-            persistence_pairs = self._mask_infinities(
-                simplex_tree.persistence_intervals_in_dimension(dim)
-            )
-            persistance_pts[dim] = persistence_pairs
-        # store persistence points in PersistenceDiagram object
-        diagram.persistence_pts = persistance_pts
+            if self.mask_infinite_features:
+                persistence_pairs = self._mask_infinities(
+                    simplex_tree.persistence_intervals_in_dimension(dim)
+                )
+            else:
+                persistence_pairs = (
+                    simplex_tree.persistence_intervals_in_dimension(dim)
+                )
+            persistence_pts[dim] = persistence_pairs
+        # Store persistence points in PersistenceDiagram object
+        diagram.persistence_pts = persistence_pts
         return diagram
 
     @staticmethod
     def _mask_infinities(array):
-        """Removes infinite values from an array"""
-        return array[array[:, 1] < np.inf]
+        """
+        Replaces infinite values in the persistence intervals with the maximum finite filtration value.
+
+        Parameters
+        ----------
+        array : np.ndarray
+            Array of persistence intervals.
+
+        Returns
+        -------
+        np.ndarray
+            Updated array where infinite values in the death time are replaced with the max finite value.
+        """
+        # Find the maximum finite value in the death times
+        finite_max = np.max(array[array[:, 1] < np.inf, 1])
+
+        # Replace infinite values in the death column with the maximum finite value
+        array[array[:, 1] == np.inf, 1] = finite_max + 1
+
+        return array
