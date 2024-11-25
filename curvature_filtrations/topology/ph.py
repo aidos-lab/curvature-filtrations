@@ -1,6 +1,5 @@
-import collections
-import multiprocessing
 from typing import List, Tuple, Optional, Dict
+from enum import Enum
 
 import gudhi as gd
 import gudhi.representations
@@ -9,6 +8,8 @@ import networkx as nx
 import numpy as np
 from joblib import Parallel, delayed
 from curvature_filtrations.topology.representations import PersistenceDiagram
+
+SMALL_NONZERO_FEATURE = [1e-15, 1e-14]
 
 
 class GraphHomology:
@@ -33,6 +34,8 @@ class GraphHomology:
     calculate_persistent_homology(self, G : nx.Graph, extended_persistence: bool = False) -> PersistenceDiagram):
         Uses helper methods _build_simplex_tree to execute a filtration on the given graph and _format_persistence_diagrams to store the resulting persistent homology data in a PersistenceDiagram object.
     """
+
+    # Small constants to ensure numerical stability and prevent empty persistence intervals
 
     def __init__(
         self,
@@ -159,7 +162,7 @@ class GraphHomology:
         return diagram
 
     @staticmethod
-    def _mask_infinities(array):
+    def _mask_infinities(array) -> np.ndarray:
         """
         Replaces infinite values in the persistence intervals with the maximum finite filtration value.
 
@@ -172,11 +175,19 @@ class GraphHomology:
         -------
         np.ndarray
             Updated array where infinite values in the death time are replaced with the max finite value.
+            If the array is empty or contains no finite death values, a small interval
+            [[SMALLEST_NONZERO_VALUE, TINY_DEATH_THRESHOLD]] is returned.
+
+        Notes
+        -----
+        SMALLEST_NONZERO_VALUE and TINY_DEATH_THRESHOLD are small constants defined to ensure
+        numerical stability and prevent empty persistence intervals in extreme cases.
         """
         # Find the maximum finite value in the death times
-        finite_max = np.max(array[array[:, 1] < np.inf, 1])
-
-        # Replace infinite values in the death column with the maximum finite value
-        array[array[:, 1] == np.inf, 1] = finite_max + 1
-
-        return array
+        finite_values = array[array[:, 1] < np.inf, 1]
+        if array.size == 0 or finite_values.size == 0:
+            return np.array([SMALL_NONZERO_FEATURE])
+        else:
+            finite_max = np.max(finite_values)
+            array[array[:, 1] == np.inf, 1] = finite_max + 1
+            return array
