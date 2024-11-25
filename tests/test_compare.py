@@ -21,14 +21,15 @@ class TestComparator:
         """Test default attributes."""
         comp = Comparator()
         assert isinstance(comp.kilt, KILT)
-        assert isinstance(comp.ph, GraphHomology)
+        assert isinstance(comp.homology_dims, list)
+        assert isinstance(comp.extended_persistence, bool)
 
         assert comp.kilt.measure == "forman_curvature"
         assert comp.kilt.weight == None
         assert comp.kilt.alpha == 0.0
         assert comp.kilt.prob_fn == None
 
-        assert comp.ph.homology_dims == [0, 1]
+        assert comp.homology_dims == [0, 1]
 
         assert comp.descriptor1 == None
         assert comp.descriptor2 == None
@@ -122,7 +123,6 @@ class TestComparator:
         """Test fit_transform method."""
         comp = Comparator(measure="ollivier_ricci_curvature")
         distance = comp.fit_transform(graph, graph2, metric="image")
-        print(distance)
         assert isinstance(distance, float)
 
     def test_kilterator(self, graph):
