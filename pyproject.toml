@@ -1,10 +1,13 @@
 [tool.poetry]
-name = "scott"
+name = "curvature-filtrations"
 version = "0.1.0"
-description = "SCOTT: Studying Curvature Operations and Topology Toolkit"
+description = "SCOTT: Synthesizing Curvature Operations and Topology Tools. Use curvature filtrations for graphs and graph distributions!"
 authors = ["Jeremy Wayland <jeremy.don.wayland@gmail.com>", "Emily Simons<emsimons4@gmail.com>", "Bastian Rieck <bastian@rieck.me>"]
 license = "BSD 3-Clause License"
 readme = "README.md"
+packages = [
+    { include = "scott", from = "." },
+]
 
 
 [tool.poetry.dependencies]
