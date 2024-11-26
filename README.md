@@ -1,19 +1,29 @@
-# cfggme: <u>C</u>urvature <u>F</u>iltrations <u>G</u>raph <u>G</u>enerative <u>M</u>odel <u>E</u>valuation
+# SCOTT
+
+## **S**ynthesizing **C**urvature **O**perations and **T**opological **T**ools
 
 [![arXiv](https://img.shields.io/badge/arXiv-2301.12906-b31b1b.svg)](https://arxiv.org/abs/2301.12906) ![GitHub contributors](https://img.shields.io/github/contributors/aidos-lab/CFGGME) ![GitHub](https://img.shields.io/github/license/aidos-lab/CFGGME)
 
-This is the official repository for the NeurIPS 2023 paper: [Curvature Filtrations for Graph Generative Model Evaluation](https://arxiv.org/abs/2301.12906).
+`SCOTT` is a Python package for computing **curvature filtrations** for graphs and graph distributions. This repository accompanies our NeurIPS 2023 paper: [_Curvature Filtrations for Graph Generative Model Evaluation_](https://arxiv.org/abs/2301.12906).
 
+Our method introduces a novel way to compare graph distributions, avoiding the limitations of Maximal Mean Discrepancy (MMD), which has known [drawbacks](https://arxiv.org/abs/2106.01098).
 
-We provide a new method for comparing graph distributions that _does not_ rely on Maximal Mean Discrepancy (MMD), which has been shown to have some [drawbacks](https://arxiv.org/abs/2106.01098). Our method combines **discrete curvature** on graphs and **persistent homology** to build expressive descriptors of sets
-of graphs that are _robust_, _stable_, _expressive_ and support _statistical tests_. When using our measures in practice, we highly reccomend selecting a filtration
-based on **Ollivier Ricci** curvature.
+By combining **discrete curvature** on graphs with **persistent homology**, `SCOTT` provides expressive descriptors of graph sets that are:
 
-Please consider citing our work! 
+- **Robust**
+- **Stable**
+- **Expressive**
+- **Compatible with Statistical Testing**
+
+The package is highly adaptable, offering several options for **user customization**, including different curvature computation methods and diverse metrics for comparing persistent homology outputs.
+
+### **Cite Us**
+
+If you find this package useful in your research, please consider citing:
 
 ```bibtex
 @misc{southern2023curvature,
-      title={Curvature Filtrations for Graph Generative Model Evaluation}, 
+      title={Curvature Filtrations for Graph Generative Model Evaluation},
       author={Joshua Southern and Jeremy Wayland and Michael Bronstein and Bastian Rieck},
       year={2023},
       eprint={2301.12906},
@@ -22,16 +32,84 @@ Please consider citing our work!
 }
 ```
 
-# Dependencies
+# Installation
 
-Dependencies are managed using `poetry.` To setup the environment,
-please run `poetry install` from the main directory (assuming the user
-already has installed `poetry`).
+### Using `pip`
 
-# Running CFGGME
+Install `curvature-filtrations` via pip:
 
-The `example.py` shows an example of how we generate a distance between two distributions of graphs.  We assume that each distribution of graphs is stored as a list of `networkx` graphs. To use our code for comparing your own distributions of graphs, it is as easy as substituting the two lists with your own lists of graphs.
+```bash
+$ pip install curvature-filtrations
+```
 
-The `sr.py` file recreates the strongly regular graph experiments shown in the paper. 
+### Building from Source
 
+Our dependencies are managed with [`poetry`](https://python-poetry.org), which can be installed with `pip install poetry`. To install from source:
 
+1. Clone the repository
+
+```bash
+$ git clone https://github.com/aidos-lab/curvature-filtrations.git
+```
+
+1. Navigate to the directory
+
+```bash
+$ cd curvature-filtrations
+```
+
+3. Install dependencies
+
+```bash
+$ poetry install
+```
+
+# Quick Start
+
+The example.py script demonstrates how to compute the distance between two graph distributions.
+
+To use SCOTT with your own data, replace the example graph distributions with your own. Distributions should be lists of `networkx` graphs or single `networkx` graphs.
+
+### Run our Example Script
+
+```bash
+python scripts/example.py
+```
+
+# Core Components
+
+### KILT
+
+`KILT` stands for: *K*rvature-*I*nformed *L*inks and *T*opology is an object that can compute curvature filtrations for single graphs.
+
+```python
+import networkx as nx
+from scott import KILT,Comparator
+
+G = nx.erdos_reyni(14,0.4)
+
+kilt = KILT(measure="forman_curvature")
+
+D = kilt.fit_transform(G)
+print(f"Forman Curvature Filtration:")
+print(f"Curvature Filtration Values:{kilt.curvature}")
+print(D)
+```
+
+### Comparator
+
+`Comparator` handles comparisons between graphs or graph distributions!
+
+```python
+import networkx as nx
+from scott import KILT,Comparator
+
+graph_dist1 = [nx.erdos_reyni(10,0.4) for _ in range(40)]
+graph_dist2 = [nx.erdos_reyni(20,0.6) for _ in range(50)]
+
+compare = Compare(measure="forman_curvature")
+
+dist = compare.fit_transform(graph_dist1,graph_dist2,metric="image")
+
+print(f"Distance between distributions measured by Forman Filtration: {dist}")
+```
