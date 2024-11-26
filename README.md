@@ -41,25 +41,4 @@ The `example.py` file demonstrates how we generate a distance between two distri
 
 To use our code for comparing your own distributions of graphs, simply substitue the two lists with your own graph distributions. We assume that each distribution of graphs is stored as a list of `networkx` graphs, or simply as a single `networkx` graph.
 
-Several basic customization options are demonstrated in `example.py`. Please see our `customize_compare.ipynb` tutorial if more customization is desired.
-
-
-# SCOTT Tutorials
-
-For more a more in-depth walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks`. There are two main tutorials:
-
-(1) **Customizing how your comparison is executed:** `custom_compare.ipynb`
-
-_Read this section if:_ Your primary goal is to find the distance between your graph distributions, but you are looking for additional ways to customize the curvature and distance measures used.
-
-(2) **Breakdown of intermediate functionalities:** `bagpipeline.ipynb`
-
-_Read this section if:_ You want to better understand the underlying workflow of this process and/or are interested in the output from intermediate steps in the process.
-
-Functionalities demonstrated in this tutorial include:
-- Calculating curvature for one graph or graph distribution
-- Executing a curvature filtration to produce a persistence diagram
-- Converting persistence diagrams into a topological descriptor (e.g. persistence landscape, persistence image)
-- Computing the distance between topological descriptors
-
-
+Several basic customization options are demonstrated in `example.py`. 
