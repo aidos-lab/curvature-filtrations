@@ -5,7 +5,7 @@ from scott.topology.distances import (
     TopologicalDistance,
     supported_distances,
 )
-from typing import List, Tuple, Optional, Union, Dict
+from typing import List, Optional
 
 
 class Comparator:
