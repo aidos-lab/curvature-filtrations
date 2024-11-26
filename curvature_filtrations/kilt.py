@@ -5,6 +5,7 @@ from typing import List, Tuple, Optional, Dict
 
 
 import curvature_filtrations.geometry.measures as measures
+from curvature_filtrations.topology.representations import PersistenceDiagram
 from curvature_filtrations.topology.ph import GraphHomology
 
 # methods for calculating curvature that KILT currently supports
@@ -102,7 +103,9 @@ class KILT:
         """Getter method for the curvature values of the graph."""
         if self.G is None:
             return None
-        return self._unpack_curvature_values(nx.get_edge_attributes(self.G, name=self.measure))
+        return self._unpack_curvature_values(
+            nx.get_edge_attributes(self.G, name=self.measure)
+        )
 
     @curvature.setter
     def curvature(self, values: list) -> None:
@@ -127,6 +130,17 @@ class KILT:
         Returns
         -------
         None
+
+        Examples
+        --------
+        >>> import networkx as nx
+        >>> from curvature_filtrations.topology.kilt import KILT
+        >>> G = nx.Graph()
+        >>> edges = [(0, 1),(0, 2),(0, 3),(0, 4),(1, 2),(2, 3),(3, 5),(4, 5),(5, 6),(3, 7)]
+        >>> kilt = KILT()
+        >>> kilt.fit(G)
+        >>> print(kilt.curvature)
+        [ 1.  3. -1. -2.  2.  0. -3. -1. -1.  0.]
         """
         self._graph_is_not_empty(graph)
         self.G = graph
@@ -143,7 +157,9 @@ class KILT:
             0,
             1,
         ],
-    ) -> Dict[int, np.array]:
+        mask_infinite_features: bool = False,
+        extended_persistence: bool = True,
+    ) -> PersistenceDiagram:
         """
         Executes a curvature filtration for the given homology dimensions.
         Can only be run after fit(), as it requires edge curvature values to execute a filtration.
@@ -155,11 +171,16 @@ class KILT:
 
         Returns
         -------
-        PersistenceDiagram
+        PersistenceDiagram (Dict[int, np.array])
             A persistence diagram wrapper for the topological information resulting from a curvature filtration.
             Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
         """
-        ph = GraphHomology(homology_dims, self.measure)
+        ph = GraphHomology(
+            homology_dims,
+            self.measure,
+            mask_infinite_features=mask_infinite_features,
+            extended_persistence=extended_persistence,
+        )
         assert (
             self._curvature_values_exist()
         ), "Curvature values have not been computed. Please run `fit` first."
@@ -176,7 +197,9 @@ class KILT:
             0,
             1,
         ],
-    ) -> Dict[int, np.array]:
+        mask_infinite_features: bool = False,
+        extended_persistence: bool = False,
+    ) -> PersistenceDiagram:
         """Runs fit(graph) and transform(homology_dims) in succession.
         Thus computes the curvature values for the given graph and executes a filtration for the given homology dimensions.
 
@@ -186,15 +209,37 @@ class KILT:
             Input graph for which curvature values will be calculated.
         homology_dims : List[int]
             A list of the homology dimensions for which persistence points should be calculated, with default being [0,1].
+        mask_infinite_features : bool, default=False
+            Whether to mask infinite persistence pairs in the resulting persistence diagrams.
+        extended_persistence : bool, default=False
+            Whether to compute extended persistence. Default is False, computing standard persistence.
 
         Returns
         -------
-        PersistenceDiagram
+        PersistenceDiagram (Dict[int, np.array])
             A persistence diagram wrapper for the topological information resulting from a curvature filtration.
             Attribute persistence_pts stores a Dict[int, np.array] that a maps homology dimension key to a np.array of its persistence pairs.
+
+        Examples
+        --------
+        >>> import networkx as nx
+        >>> from curvature_filtrations.topology.kilt import KILT
+        >>> G = nx.Graph()
+        >>> edges = [(0, 1),(0, 2),(0, 3),(0, 4),(1, 2),(2, 3),(3, 5),(4, 5),(5, 6),(3, 7)]
+        >>> G.add_edges_from(edges)
+        >>> kilt = KILT()
+        >>> diagram = kilt.fit_transform(G,mask_infinite_features=False,extended_persistence=False)
+        >>> print(diagram.persistence_pts)
+        {0: array([[-2., -1.],
+           [-3., inf]]), 1: array([[ 2.,  3.],
+           [-1., inf]])}
         """
         self.fit(graph)
-        return self.transform(homology_dims)
+        return self.transform(
+            homology_dims,
+            mask_infinite_features,
+            extended_persistence,
+        )
 
     #  ╭──────────────────────────────────────────────────────────╮
     #  │ Helper Functions                                         │
@@ -221,7 +266,9 @@ class KILT:
 
     def _graph_is_not_empty(self, graph) -> None:
         """Asserts that the inputted graph is not empty (i.e. has nodes and edges)."""
-        assert len(graph.nodes) > 0, "Graph must have nodes to compute curvature"
+        assert (
+            len(graph.nodes) > 0
+        ), "Graph must have nodes to compute curvature"
 
     @staticmethod
     def _unpack_curvature_values(
@@ -248,4 +295,6 @@ class KILT:
 
     def __repr__(self) -> str:
         """Return a string representation of the KILT object."""
-        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
+        return (
+            f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
+        )
