@@ -105,77 +105,94 @@ def _forman_curvature_weighted(G, weight):
 def balanced_forman_curvature(G, weight=None):
     """
     Compute the balanced Forman curvature for each edge in a NetworkX graph.
-    The balanced Forman curvature is a measure of the "sharpness" or "bottleneck" properties of edges in a graph, which can be useful for understanding over-squashing and bottlenecks in graph neural networks.
 
     Parameters
     ----------
     G : networkx.Graph
         Input graph (weighted or unweighted).
+    weight : str or None
+        Name of the edge weight attribute. If None, the graph is treated as unweighted.
+
     Returns
     -------
-    list of tuple
-        A list of tuples (u, v, curvature) for each edge (u, v) in the graph,
-        where `u` and `v` are nodes and `curvature` is the computed balanced
-        Forman curvature for the edge.
+    np.array
+        An array of balanced Forman curvature values, following the ordering of edges of `G`.
+
     References
     ----------
     .. [1] Topping, Jake, et al. "Understanding Over-Squashing and Bottlenecks
            on Graphs via Curvature." International Conference on Learning
            Representations. 2022.
     """
-    # Weighted adjacency matrix
-    A = nx.to_numpy_array(G, weight=weight)
-    N = A.shape[0]
+    # Compute adjacency matrix and degree information
+    A, d_in, d_out = _prepare_graph_data(G, weight)
 
-    # Weighted degree information
-    d_in = A.sum(axis=0)  # Weighted in-degrees
-    d_out = A.sum(axis=1)  # Weighted out-degrees
-
-    # Second power of the weighted adjacency matrix
-    A2 = np.matmul(A, A)
-
-    curvature_values = []
-
-    for u, v in G.edges():
-        i, j = u, v  # Node indices in the adjacency matrix
-        weight = A[i, j]
-
-        if weight == 0:  # Skip if there's no edge (just a safeguard)
-            continue
-
-        # Determine max and min degrees
-        d_max = max(d_in[i], d_out[j])
-        d_min = min(d_in[i], d_out[j])
-
-        if d_max * d_min == 0:
-            curvature = 0
-        else:
-            # Compute sharpness and lambda
-            sharp_ij = 0
-            lambda_ij = 0
-            for k in range(N):
-                TMP_1 = A[k, j] * (A2[i, k] - A[i, k]) * weight
-                TMP_2 = A[i, k] * (A2[k, j] - A[k, j]) * weight
-
-                if TMP_1 > 0:
-                    sharp_ij += 1
-                    lambda_ij = max(lambda_ij, TMP_1)
-
-                if TMP_2 > 0:
-                    sharp_ij += 1
-                    lambda_ij = max(lambda_ij, TMP_2)
-
-            # Balanced Forman Curvature
-            curvature = (
-                (2 / d_max)
-                + (2 / d_min)
-                - 2
-                + (2 / d_max + 1 / d_min) * A2[i, j] * weight
-            )
-            if lambda_ij > 0:
-                curvature += sharp_ij / (d_max * lambda_ij)
-
-        # Store curvature for this edge
-        curvature_values.append(curvature)
+    # Compute curvature values
+    curvature_values = [
+        _compute_edge_curvature(A, d_in, d_out, u, v) for u, v in G.edges()
+    ]
 
     return np.asarray(curvature_values)
+
+
+def _prepare_graph_data(G, weight):
+    """Prepare weighted adjacency matrix and degree information."""
+    A = nx.to_numpy_array(G, weight=weight)
+    d_in = A.sum(axis=0)  # Weighted in-degrees
+    d_out = A.sum(axis=1)  # Weighted out-degrees
+    return A, d_in, d_out
+
+
+def _compute_edge_curvature(A, d_in, d_out, u, v):
+    """Compute the balanced Forman curvature for a single edge."""
+    i, j = u, v  # Node indices in the adjacency matrix
+    weight = A[i, j]
+
+    if weight == 0:  # Safeguard against missing edges
+        return 0
+
+    d_max, d_min = max(d_in[i], d_out[j]), min(d_in[i], d_out[j])
+
+    if d_max * d_min == 0:
+        return 0
+
+    sharp_ij, lambda_ij = _compute_sharpness_and_lambda(A, i, j, weight)
+
+    # Balanced Forman Curvature
+    curvature = (
+        (2 / d_max)
+        + (2 / d_min)
+        - 2
+        + (2 / d_max + 1 / d_min) * np.matmul(A, A)[i, j] * weight
+    )
+
+    if lambda_ij > 0:
+        curvature += sharp_ij / (d_max * lambda_ij)
+
+    return curvature
+
+
+def _compute_sharpness_and_lambda(A, i, j, weight):
+    """Compute the sharpness and lambda values for an edge."""
+    N = A.shape[0]
+    sharp_ij = 0
+    lambda_ij = 0
+
+    for k in range(N):
+        TMP_1 = A[k, j] * (_second_power(A, i, k) - A[i, k]) * weight
+        TMP_2 = A[i, k] * (_second_power(A, k, j) - A[k, j]) * weight
+
+        if TMP_1 > 0:
+            sharp_ij += 1
+            lambda_ij = max(lambda_ij, TMP_1)
+
+        if TMP_2 > 0:
+            sharp_ij += 1
+            lambda_ij = max(lambda_ij, TMP_2)
+
+    return sharp_ij, lambda_ij
+
+
+def _second_power(A, i, k):
+    """Compute the second power of the adjacency matrix."""
+    return np.matmul(A, A)[i, k]
