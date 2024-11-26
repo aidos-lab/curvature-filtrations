@@ -1,8 +1,8 @@
 import pytest
-from curvature_filtrations.compare import Comparator
-from curvature_filtrations.kilt import KILT
-from curvature_filtrations.topology.ph import GraphHomology, PersistenceDiagram
-from curvature_filtrations.topology.distances import (
+from scott.compare import Comparator
+from scott.kilt import KILT
+from scott.topology.ph import GraphHomology, PersistenceDiagram
+from scott.topology.distances import (
     LandscapeDistance,
     ImageDistance,
 )

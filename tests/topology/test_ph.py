@@ -2,8 +2,8 @@ import pytest
 import networkx as nx
 import numpy as np
 from gudhi import SimplexTree
-from curvature_filtrations.topology.representations import PersistenceDiagram
-from curvature_filtrations.topology.ph import GraphHomology
+from scott.topology.representations import PersistenceDiagram
+from scott.topology.ph import GraphHomology
 
 
 class TestGraphHomology:

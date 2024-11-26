@@ -1,9 +1,8 @@
 import pytest
 import numpy as np
 import gudhi as gd
-from curvature_filtrations.topology.distances import LandscapeDistance, ImageDistance
-from curvature_filtrations.topology.representations import (
-    PersistenceDiagram,
+from scott.topology.distances import LandscapeDistance, ImageDistance
+from scott.topology.representations import (
     PersistenceLandscape,
     PersistenceImage,
 )
@@ -14,7 +13,9 @@ class TestLandscapeDistance:
 
     def test_init(self, toy_diagram1, toy_diagram2):
         """Test initialization of LandscapeDistance object."""
-        LD = LandscapeDistance(toy_diagram1, toy_diagram2, norm=2, resolution=1000)
+        LD = LandscapeDistance(
+            toy_diagram1, toy_diagram2, norm=2, resolution=1000
+        )
         assert LD.diagram1 == toy_diagram1
         assert LD.diagram2 == toy_diagram2
 
@@ -63,7 +64,9 @@ class TestLandscapeDistance:
         landscapes2 = setup_landscape_distance._convert_to_landscape(
             setup_landscape_distance.diagram2
         )
-        diff = setup_landscape_distance._subtract_landscapes(landscapes1[0], landscapes2[0])
+        diff = setup_landscape_distance._subtract_landscapes(
+            landscapes1[0], landscapes2[0]
+        )
         assert isinstance(diff, PersistenceLandscape)
         assert 0 in diff.functions
         assert 1 in diff.functions

@@ -1,11 +1,10 @@
 import numpy as np
 import networkx as nx
-from curvature_filtrations.kilt import KILT
-from curvature_filtrations.topology.distances import (
+from scott.kilt import KILT
+from scott.topology.distances import (
     TopologicalDistance,
     supported_distances,
 )
-from curvature_filtrations.topology.ph import GraphHomology
 from typing import List, Tuple, Optional, Union, Dict
 
 

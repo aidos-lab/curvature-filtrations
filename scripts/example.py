@@ -1,6 +1,6 @@
 "Example: Computing Distance between 2 ER Graph Distributions"
 import networkx as nx
-from curvature_filtrations.compare import Comparator
+from scott.compare import Comparator
 
 # Defining the two graph distributions that will be compared.
 # Input your own graph distributions (lists of networkx graphs) here. Individual networkx graphs are also supported.
@@ -58,6 +58,8 @@ print(
 # Using the Persistence Image Vectorization
 print(
     "Distance between distributions with persistence image vectorization: {}".format(
-        comp_forman.fit_transform(graph_distribution1, graph_distribution2, metric="image")
+        comp_forman.fit_transform(
+            graph_distribution1, graph_distribution2, metric="image"
+        )
     )
 )

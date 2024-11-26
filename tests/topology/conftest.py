@@ -1,10 +1,10 @@
 import pytest
 import numpy as np
 import networkx as nx
-from curvature_filtrations.topology.distances import LandscapeDistance
-from curvature_filtrations.topology.ph import PersistenceDiagram
-from curvature_filtrations.topology.ph import GraphHomology
-from curvature_filtrations.kilt import KILT
+from scott.topology.distances import LandscapeDistance
+from scott.topology.ph import PersistenceDiagram
+from scott.topology.ph import GraphHomology
+from scott.kilt import KILT
 
 
 @pytest.fixture

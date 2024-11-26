@@ -5,7 +5,7 @@ import gudhi.representations
 import gudhi.wasserstein
 import networkx as nx
 import numpy as np
-from curvature_filtrations.topology.representations import PersistenceDiagram
+from scott.topology.representations import PersistenceDiagram
 
 SMALL_NONZERO_FEATURE = [1e-15, 1e-14]
 

@@ -1,13 +1,13 @@
 import pytest
 import networkx as nx
 import numpy as np
-from curvature_filtrations.topology.representations import (
+from scott.topology.representations import (
     PersistenceDiagram,
     PersistenceLandscape,
     PersistenceImage,
 )
-from curvature_filtrations.kilt import KILT
-from curvature_filtrations.topology.distances import LandscapeDistance, ImageDistance
+from scott.kilt import KILT
+from scott.topology.distances import LandscapeDistance, ImageDistance
 
 
 class TestDiagram:
@@ -111,4 +111,7 @@ class TestImage:
         assert type(avg) == PersistenceImage
         assert avg.pixels != None
         assert np.all(avg.get_pixels_for_dim(0) == avg.pixels[0])
-        assert len(avg.get_pixels_for_dim(0)) == avg.resolution[0] * avg.resolution[1]
+        assert (
+            len(avg.get_pixels_for_dim(0))
+            == avg.resolution[0] * avg.resolution[1]
+        )

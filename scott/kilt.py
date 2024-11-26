@@ -4,9 +4,9 @@ import gudhi as gd
 from typing import List, Tuple, Optional, Dict
 
 
-import curvature_filtrations.geometry.measures as measures
-from curvature_filtrations.topology.representations import PersistenceDiagram
-from curvature_filtrations.topology.ph import GraphHomology
+import scott.geometry.measures as measures
+from scott.topology.representations import PersistenceDiagram
+from scott.topology.ph import GraphHomology
 
 # methods for calculating curvature that KILT currently supports
 CURVATURE_MEASURES = [
@@ -135,7 +135,7 @@ class KILT:
         Examples
         --------
         >>> import networkx as nx
-        >>> from curvature_filtrations.topology.kilt import KILT
+        >>> from scott.topology.kilt import KILT
         >>> G = nx.Graph()
         >>> edges = [(0, 1),(0, 2),(0, 3),(0, 4),(1, 2),(2, 3),(3, 5),(4, 5),(5, 6),(3, 7)]
         >>> kilt = KILT()
@@ -224,7 +224,7 @@ class KILT:
         Examples
         --------
         >>> import networkx as nx
-        >>> from curvature_filtrations.topology.kilt import KILT
+        >>> from scott.topology.kilt import KILT
         >>> G = nx.Graph()
         >>> edges = [(0, 1),(0, 2),(0, 3),(0, 4),(1, 2),(2, 3),(3, 5),(4, 5),(5, 6),(3, 7)]
         >>> G.add_edges_from(edges)

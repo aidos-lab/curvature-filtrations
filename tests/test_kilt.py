@@ -1,9 +1,9 @@
 import pytest
-from curvature_filtrations.kilt import KILT
+from scott.kilt import KILT
 import networkx as nx
 import numpy as np
-import curvature_filtrations.geometry.measures as measures
-from curvature_filtrations.topology.ph import PersistenceDiagram
+import scott.geometry.measures as measures
+from scott.topology.ph import PersistenceDiagram
 
 
 class TestKILT:

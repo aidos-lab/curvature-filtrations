@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Dict, List
 import gudhi as gd
-from curvature_filtrations.topology.representations import (
+from scott.topology.representations import (
     PersistenceDiagram,
     PersistenceLandscape,
     PersistenceImage,
