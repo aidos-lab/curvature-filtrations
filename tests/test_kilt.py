@@ -79,6 +79,14 @@ class TestKILT:
         assert len(klt.curvature) == len(curvature)
         assert np.array_equal(klt.curvature, curvature)
 
+    def test_kilt_balanced_forman(self, small_graph):
+        """Tests resistance curvature calculation."""
+        klt = KILT(measure="balanced_forman_curvature")
+        klt.fit(small_graph)
+        curvature = measures.balanced_forman_curvature(small_graph)
+        assert len(klt.curvature) == len(curvature)
+        assert np.array_equal(klt.curvature, curvature)
+
     def test_fit(self, graph):
         """Tests fit() method."""
         klt = KILT(measure="forman_curvature")
