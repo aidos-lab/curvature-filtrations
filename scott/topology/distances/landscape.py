@@ -1,6 +1,6 @@
 import gudhi as gd
 import numpy as np
-from typing import List
+from typing import List, Dict
 from scott.topology.distances.base import TopologicalDistance
 from scott.topology.representations import (
     PersistenceDiagram,
@@ -168,25 +168,57 @@ class LandscapeDistance(TopologicalDistance):
         landscapes: List[PersistenceLandscape],
     ) -> PersistenceLandscape:
         """Compute and return the average persistence landscape across multiple landscapes."""
+        avg_landscape = LandscapeDistance._initialize_average_landscape(
+            landscapes
+        )
+        LandscapeDistance._accumulate_landscape_functions(
+            landscapes, avg_landscape
+        )
+        LandscapeDistance._normalize_landscape(avg_landscape, len(landscapes))
+        return LandscapeDistance._create_average_landscape_object(
+            landscapes, avg_landscape
+        )
+
+    @staticmethod
+    def _initialize_average_landscape(
+        landscapes: List[PersistenceLandscape],
+    ) -> Dict[int, np.ndarray]:
+        """Initialize an average landscape dictionary with zero arrays."""
         avg_landscape = {}
-        # sum landscape functions
+        for dim in landscapes[0].functions.keys():
+            avg_landscape[dim] = np.zeros_like(landscapes[0].functions[dim])
+        return avg_landscape
+
+    @staticmethod
+    def _accumulate_landscape_functions(
+        landscapes: List[PersistenceLandscape],
+        avg_landscape: Dict[int, np.ndarray],
+    ) -> None:
+        """Accumulate landscape functions into the average landscape."""
         for landscape in landscapes:
             for dim, functions in landscape.functions.items():
-                if dim not in avg_landscape:
-                    # instantiate new np.array of proper length with 0s
-                    avg_landscape[dim] = np.zeros_like(functions)
-                # add landscape functions with existing np.array
                 avg_landscape[dim] += functions
-        # divide by # of landscapes
+
+    @staticmethod
+    def _normalize_landscape(
+        avg_landscape: Dict[int, np.ndarray],
+        num_landscapes: int,
+    ) -> None:
+        """Normalize the average landscape by the number of landscapes."""
         for dim in avg_landscape:
-            avg_landscape[dim] /= len(landscapes)
-        # creating PersistenceLandscape object to return
+            avg_landscape[dim] /= num_landscapes
+
+    @staticmethod
+    def _create_average_landscape_object(
+        landscapes: List[PersistenceLandscape],
+        avg_landscape: Dict[int, np.ndarray],
+    ) -> PersistenceLandscape:
+        """Create and return a PersistenceLandscape object from the average landscape."""
         avg_pl = PersistenceLandscape(
             homology_dims=list(avg_landscape.keys()),
             num_functions=landscapes[0].num_functions,
             resolution=landscapes[0].resolution,
         )
-        # adding functions to PersistenceLandscape object
         avg_pl.functions = avg_landscape
         return avg_pl
 
