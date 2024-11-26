@@ -13,6 +13,7 @@ CURVATURE_MEASURES = [
     "forman_curvature",
     "ollivier_ricci_curvature",
     "resistance_curvature",
+    "balanced_forman_curvature",
 ]
 
 
@@ -254,7 +255,7 @@ class KILT:
                 graph,
                 self.alpha,
                 self.weight,
-                self.prob_fn,
+                prob_fn=self.prob_fn,
             )
         else:
             # Forman and Resistance measures only require graph and optional weight
