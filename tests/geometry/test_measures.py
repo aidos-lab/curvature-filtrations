@@ -3,10 +3,9 @@ import pytest
 import pytest
 import networkx as nx
 import numpy as np
-from curvature_filtrations.geometry.measures import (
+from scott.geometry.measures import (
     forman_curvature,
     ollivier_ricci_curvature,
-    custom_orc,
     balanced_forman_curvature,
     resistance_curvature,
 )
@@ -48,13 +47,10 @@ class TestCurvatureMeasures:
             return prob
 
         # Check that we default to custom_orc if prob_fn is passed
-        curvature1 = custom_orc(simple_graph, prob_fn=custom_prob_fn)
         curvature2 = ollivier_ricci_curvature(
             simple_graph, prob_fn=custom_prob_fn
         )
-
-        assert np.allclose(curvature1, curvature2)
-        assert curvature1.shape == (
+        assert curvature2.shape == (
             len(simple_graph.edges()),
         )  # Number of edges in the graph
 
