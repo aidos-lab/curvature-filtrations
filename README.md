@@ -2,7 +2,9 @@
 
 ## **S**ynthesizing **C**urvature **O**perations and **T**opological **T**ools
 
-[![arXiv](https://img.shields.io/badge/arXiv-2301.12906-b31b1b.svg)](https://arxiv.org/abs/2301.12906) ![GitHub contributors](https://img.shields.io/github/contributors/aidos-lab/CFGGME) ![GitHub](https://img.shields.io/github/license/aidos-lab/CFGGME)
+
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/875f73368ad03e6cd94e/maintainability)](https://codeclimate.com/github/aidos-lab/curvature-filtrations/maintainability) ![GitHub contributors](https://img.shields.io/github/contributors/aidos-lab/CFGGME) ![GitHub](https://img.shields.io/github/license/aidos-lab/CFGGME) [![arXiv](https://img.shields.io/badge/arXiv-2301.12906-b31b1b.svg)](https://arxiv.org/abs/2301.12906)
 
 `SCOTT` is a Python package for computing **curvature filtrations** for graphs and graph distributions. This repository accompanies our NeurIPS 2023 paper: [_Curvature Filtrations for Graph Generative Model Evaluation_](https://arxiv.org/abs/2301.12906).
 
