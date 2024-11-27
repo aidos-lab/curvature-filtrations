@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 import networkx as nx
 from scott.kilt import KILT
 from scott.topology.distances import (
@@ -188,7 +189,8 @@ class Comparator:
     def _curvature_filtration(self, G):
         """Computes a curvature filtration for all graphs in G, returning a list of PersistenceDiagrams."""
         graph_iterable = self._format_inputs(G)
-        return [self._kilterator(g) for g in graph_iterable]
+        return [self._kilterator(g) for g in tqdm(graph_iterable, desc="Processing Graphs")]
+
 
     def _kilterator(self, graph):
         """Computes a curvature filtration for one graph, returning a PersistenceDiagram."""
