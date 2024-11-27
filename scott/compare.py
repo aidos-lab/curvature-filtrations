@@ -189,7 +189,15 @@ class Comparator:
     def _curvature_filtration(self, G):
         """Computes a curvature filtration for all graphs in G, returning a list of PersistenceDiagrams."""
         graph_iterable = self._format_inputs(G)
-        return [self._kilterator(g) for g in tqdm(graph_iterable, desc="Processing Graphs")]
+    
+        # Wrap graph_iterable with tqdm for progress tracking
+        with tqdm(total=len(graph_iterable),start=1) as pbar:
+            result = []
+            for i,g in graph_iterable:
+                pbar.set_description(f"Processing Graph/Distribution {i}")
+                result.append(self._kilterator(g))
+                pbar.update(1)  # Update progress manually
+            return result
 
 
     def _kilterator(self, graph):
