@@ -59,6 +59,12 @@ class TestLandscape:
         pl = PersistenceLandscape()
         assert pl.homology_dims == [0, 1]
         assert pl._functions == None
+        assert pl.num_functions == 5
+        assert pl.resolution == 1000
+
+    def test_custom(self):
+        pl = PersistenceLandscape(num_functions=8)
+        assert pl.num_functions == 8
 
     def test_diagram_to_landscape(self, toy_pd):
         """Test the method that converts a PersistenceDiagram in to a PersistenceLandscape."""
@@ -111,7 +117,4 @@ class TestImage:
         assert type(avg) == PersistenceImage
         assert avg.pixels != None
         assert np.all(avg.get_pixels_for_dim(0) == avg.pixels[0])
-        assert (
-            len(avg.get_pixels_for_dim(0))
-            == avg.resolution[0] * avg.resolution[1]
-        )
+        assert len(avg.get_pixels_for_dim(0)) == avg.resolution[0] * avg.resolution[1]
