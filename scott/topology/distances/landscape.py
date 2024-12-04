@@ -41,9 +41,7 @@ class LandscapeDistance(TopologicalDistance):
         Runs fit() to create two persistence landscapes and then transform() to calculate the distance between them.
     """
 
-    def __init__(
-        self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5
-    ) -> None:
+    def __init__(self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5) -> None:
         """
         Creates a LandscapeDistance object for two persistence diagrams (or lists of persistence diagrams).
 
@@ -76,7 +74,7 @@ class LandscapeDistance(TopologicalDistance):
     #  │ Core Methods: Fit & Transform                            │
     #  ╰──────────────────────────────────────────────────────────╯
 
-    def fit(self, **kwargs):
+    def fit(self):
         """Computes and returns persistence landscapes from the persistence diagrams, diagram1 and diagram2 (or the average persistence landscapes, if diagram1 and/or diagram2 are distributions.
 
         Returns
@@ -116,14 +114,10 @@ class LandscapeDistance(TopologicalDistance):
         float :
             The norm-based distance between the two given persistence landscapes.
         """
-        common_dims = set(landscape1.homology_dims).intersection(
-            landscape2.homology_dims
-        )
+        common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
         difference = self._subtract_landscapes(landscape1, landscape2)
 
-        distance = sum(
-            self.norm(difference.functions[dim]) for dim in common_dims
-        )
+        distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
         return distance
 
     def fit_transform(self) -> float:
@@ -153,9 +147,7 @@ class LandscapeDistance(TopologicalDistance):
             )
             landscape_functions = {}
             for dim, points in diagram.persistence_pts.items():
-                transformed_points = self.landscape_transformer.fit_transform(
-                    [points]
-                )[0]
+                transformed_points = self.landscape_transformer.fit_transform([points])[0]
                 landscape_functions[dim] = transformed_points
             # set to PersistenceLandscape functions attribute
             landscape.functions = landscape_functions
@@ -168,16 +160,10 @@ class LandscapeDistance(TopologicalDistance):
         landscapes: List[PersistenceLandscape],
     ) -> PersistenceLandscape:
         """Compute and return the average persistence landscape across multiple landscapes."""
-        avg_landscape = LandscapeDistance._initialize_average_landscape(
-            landscapes
-        )
-        LandscapeDistance._accumulate_landscape_functions(
-            landscapes, avg_landscape
-        )
+        avg_landscape = LandscapeDistance._initialize_average_landscape(landscapes)
+        LandscapeDistance._accumulate_landscape_functions(landscapes, avg_landscape)
         LandscapeDistance._normalize_landscape(avg_landscape, len(landscapes))
-        return LandscapeDistance._create_average_landscape_object(
-            landscapes, avg_landscape
-        )
+        return LandscapeDistance._create_average_landscape_object(landscapes, avg_landscape)
 
     @staticmethod
     def _initialize_average_landscape(
@@ -232,9 +218,7 @@ class LandscapeDistance(TopologicalDistance):
             and landscape1.num_functions == landscape2.num_functions
         ), "Cannot subtract landscapes with different resolutions or number of landscape functions."
 
-        common_dims = set(landscape1.homology_dims).intersection(
-            landscape2.homology_dims
-        )
+        common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
         # Initialize PersistenceLandscape to return
         diff_pl = PersistenceLandscape(
             common_dims,
@@ -243,9 +227,7 @@ class LandscapeDistance(TopologicalDistance):
         )
         diff_functions = {}
         for dim in common_dims:
-            diff_functions[dim] = landscape1.get_fns_for_dim(
-                dim
-            ) - landscape2.get_fns_for_dim(dim)
+            diff_functions[dim] = landscape1.get_fns_for_dim(dim) - landscape2.get_fns_for_dim(dim)
         diff_pl.functions = diff_functions
         return diff_pl
 

@@ -23,9 +23,9 @@ class Comparator:
     extended_persistence : bool
         If True, the extended persistence diagram is computed. Default is False.
 
-    descriptor1 : One of {PersistenceDiagram (default), PersistenceImage}
+    descriptor1 : One of {PersistenceLandscape (default), PersistenceImage}
         The summarizing topological descriptor for G1, which encodes persistent homology information.
-    descriptor2 : One of {PersistenceDiagram (default), PersistenceImage}
+    descriptor2 : One of {PersistenceLandscape (default), PersistenceImage}
         The summarizing topological descriptor for G2.
         Must match type of descriptor1 in order to compute distance, which encodes persistent homology inf`ormation.
 
@@ -133,7 +133,7 @@ class Comparator:
             **kwargs,
         )  # This should error if theres no distribution support
 
-        self.descriptor1, self.descriptor2 = self.distance.fit(**kwargs)
+        self.descriptor1, self.descriptor2 = self.distance.fit()
 
     def transform(self) -> float:
         """Computes the numeric distance between topological descriptors, i.e. attributes self.descriptor1 and self.descriptor2.
@@ -179,9 +179,7 @@ class Comparator:
     def _setup_distance(self, metric) -> TopologicalDistance:
         """Checks that metric is supported. If so, returns TopologicalDistance subclass associated with the metric."""
         # Check that the metric is supported
-        assert (
-            metric in supported_distances
-        ), f"Metric {metric} is not supported."
+        assert metric in supported_distances, f"Metric {metric} is not supported."
 
         return supported_distances[metric]
 
@@ -207,9 +205,7 @@ class Comparator:
         elif Comparator._is_graph(G):
             return [G]
         else:
-            raise ValueError(
-                "Input must be a networkx.Graph or a list of networkx.Graphs"
-            )
+            raise ValueError("Input must be a networkx.Graph or a list of networkx.Graphs")
 
     @staticmethod
     def _is_distribution(G):
