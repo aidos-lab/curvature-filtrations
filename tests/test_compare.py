@@ -170,6 +170,32 @@ class TestComparator:
         assert comp.descriptor1.num_functions == 8
         assert comp.descriptor1.resolution == 100
 
+        weight_fn = lambda x: 1.2
+        distance = comp.fit_transform(
+            graph,
+            graph2,
+            metric="image",
+            bandwidth=1.2,
+            weight=weight_fn,
+            resolution=[30, 30],
+        )
+
+        assert comp.descriptor1.bandwidth == 1.2
+        assert comp.descriptor1.weight == weight_fn
+        assert comp.descriptor1.resolution == [30, 30]
+
+        distance = comp.fit_transform(
+            graph,
+            graph2,
+            metric="landscape",
+            norm=2,
+            resolution=100,
+            num_functions=8,
+        )
+
+        assert comp.descriptor1.num_functions == 8
+        assert comp.descriptor1.resolution == 100
+
     def test_kilterator(self, graph):
         """Test kilterator helper method."""
         comp = Comparator()
