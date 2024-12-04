@@ -63,6 +63,7 @@ class LandscapeDistance(TopologicalDistance):
         super().__init__(diagram1, diagram2, norm)
         self.resolution = resolution
         self.num_functions = num_functions
+
         self.landscape_transformer = gd.representations.Landscape(
             resolution=resolution, num_landscapes=num_functions
         )
@@ -144,7 +145,6 @@ class LandscapeDistance(TopologicalDistance):
     ) -> List[PersistenceLandscape]:
         """Convert each persistence diagram to a persistence landscape."""
         landscapes = []
-
         for diagram in diagrams:
             landscape = PersistenceLandscape(
                 homology_dims=diagram.homology_dims,
@@ -231,11 +231,16 @@ class LandscapeDistance(TopologicalDistance):
             landscape1.resolution == landscape2.resolution
             and landscape1.num_functions == landscape2.num_functions
         ), "Cannot subtract landscapes with different resolutions or number of landscape functions."
+
         common_dims = set(landscape1.homology_dims).intersection(
             landscape2.homology_dims
         )
         # Initialize PersistenceLandscape to return
-        diff_pl = PersistenceLandscape(common_dims)
+        diff_pl = PersistenceLandscape(
+            common_dims,
+            num_functions=landscape1.num_functions,
+            resolution=landscape1.resolution,
+        )
         diff_functions = {}
         for dim in common_dims:
             diff_functions[dim] = landscape1.get_fns_for_dim(
