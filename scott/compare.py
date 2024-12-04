@@ -151,7 +151,7 @@ class Comparator:
 
         return self.distance.transform(self.descriptor1, self.descriptor2)
 
-    def fit_transform(self, G1, G2, metric="landscape") -> float:
+    def fit_transform(self, G1, G2, metric="landscape", **kwargs) -> float:
         """Runs the fit() and transform() methods in succession.
         Returns a numeric distance between G1 and G2, computed according to the given metric.
 
@@ -169,7 +169,7 @@ class Comparator:
         float :
             The distance between G1 and G2.
         """
-        self.fit(G1, G2, metric)
+        self.fit(G1, G2, metric, **kwargs)
         return self.transform()
 
     #  ╭──────────────────────────────────────────────────────────╮
