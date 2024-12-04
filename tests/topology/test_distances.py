@@ -13,9 +13,7 @@ class TestLandscapeDistance:
 
     def test_init(self, toy_diagram1, toy_diagram2):
         """Test initialization of LandscapeDistance object."""
-        LD = LandscapeDistance(
-            toy_diagram1, toy_diagram2, norm=2, resolution=1000
-        )
+        LD = LandscapeDistance(toy_diagram1, toy_diagram2, norm=2, resolution=1000)
         assert LD.diagram1 == toy_diagram1
         assert LD.diagram2 == toy_diagram2
 
@@ -64,9 +62,7 @@ class TestLandscapeDistance:
         landscapes2 = setup_landscape_distance._convert_to_landscape(
             setup_landscape_distance.diagram2
         )
-        diff = setup_landscape_distance._subtract_landscapes(
-            landscapes1[0], landscapes2[0]
-        )
+        diff = setup_landscape_distance._subtract_landscapes(landscapes1[0], landscapes2[0])
         assert isinstance(diff, PersistenceLandscape)
         assert 0 in diff.functions
         assert 1 in diff.functions
@@ -77,6 +73,19 @@ class TestLandscapeDistance:
         """Ensure that distance between same persistence diagrams is 0."""
         LD = LandscapeDistance(toy_pd, toy_pd)
         assert LD.fit_transform() == 0
+
+    def test_custom_resolution(self, toy_pd, toy_pd2):
+        LD = LandscapeDistance(toy_pd, toy_pd2, resolution=10)
+        landscape1, landscape2 = LD.fit()
+        assert landscape1.resolution == 10
+        assert len(landscape1.functions[0]) == (10 * landscape1.num_functions)
+        assert len(landscape1.get_fns_for_dim(0)) == (10 * landscape1.num_functions)
+
+    def test_custom_num_fns(self, toy_pd, toy_pd2):
+        LD = LandscapeDistance(toy_pd, toy_pd2, num_functions=1)
+        landscape1, landscape2 = LD.fit()
+        assert landscape1.num_functions == 1
+        assert len(landscape1.get_fns_for_dim(0)) == landscape1.resolution
 
 
 class TestImageDistance:
