@@ -1,5 +1,6 @@
 from typing import Dict
 import numpy as np
+import gudhi as gd
 
 
 class PersistenceDiagram:
@@ -60,6 +61,16 @@ class PersistenceDiagram:
             self.persistence_pts != None
         ), "Persistence points have not been added to the PersistenceDiagram object"
         return self.persistence_pts[dimension]
+
+    def plot(self):
+        """Plots the persistence diagram using Gudhi’s built-in functionality."""
+        # Converting to format that gudhi accepts: [(dim, (birth, death)), ...)]
+        persistence = []
+        for dim in self.homology_dims:
+            for point in self.get_pts_for_dim(dim):
+                persistence.append((dim, (point[0], point[1])))
+        # Using built-in functionality
+        gd.plot_persistence_diagram(persistence)
 
     def __str__(self) -> str:
         name = "This is a PersistenceDiagram object with the following (birth, death) pairs: \n\t"
