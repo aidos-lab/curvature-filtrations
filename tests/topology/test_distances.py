@@ -3,6 +3,7 @@ import numpy as np
 import gudhi as gd
 from scott.topology.distances import LandscapeDistance, ImageDistance
 from scott.topology.representations import (
+    PersistenceDiagram,
     PersistenceLandscape,
     PersistenceImage,
 )
@@ -86,6 +87,56 @@ class TestLandscapeDistance:
         landscape1, landscape2 = LD.fit()
         assert landscape1.num_functions == 1
         assert len(landscape1.get_fns_for_dim(0)) == landscape1.resolution
+
+    # def test_infinites(self):
+    #     pd1, pd2 = PersistenceDiagram(), PersistenceDiagram()
+    #     pd1.persistence_pts = {
+    #         0: np.array(
+    #             [
+    #                 [-3.0, -3.0],
+    #                 [-2.0, -2.0],
+    #                 [-2.0, -1.0],
+    #                 [-1.0, -1.0],
+    #                 [0.0, 0.0],
+    #                 [0.0, 0.0],
+    #                 [1.0, 1.0],
+    #                 [-3.0, float("inf")],
+    #             ]
+    #         ),
+    #         1: np.array([[3.0, 3.0], [2.0, 3.0], [-1.0, float("inf")]]),
+    #     }
+    #     pd2.persistence_pts = {
+    #         0: np.array([[-1.0, 0.0], [0.0, 1.0], [-1.0, float("inf")]]),
+    #         1: np.array([[1.0, float("inf")]]),
+    #     }
+    #     LD = LandscapeDistance(pd1, pd2)
+    #     avg1, avg2 = LD.fit()
+    #     assert LD.transform(avg1, avg2) >= 0
+
+    def test_uninfinites(self):
+        pd1, pd2 = PersistenceDiagram(), PersistenceDiagram()
+        pd1.persistence_pts = {
+            0: np.array(
+                [
+                    [-3.0, -3.0],
+                    [-2.0, -2.0],
+                    [-2.0, -1.0],
+                    [-1.0, -1.0],
+                    [0.0, 0.0],
+                    [0.0, 0.0],
+                    [1.0, 1.0],
+                    [-3.0, 1.0],
+                ]
+            ),
+            1: np.array([[3.0, 3.0], [2.0, 3.0], [-1.0, 1.0]]),
+        }
+        pd2.persistence_pts = {
+            0: np.array([[-1.0, 0.0], [0.0, 1.0], [-1.0, 1.0]]),
+            1: np.array([[1.0, 1.0]]),
+        }
+        LD = LandscapeDistance(pd1, pd2)
+        avg1, avg2 = LD.fit()
+        assert LD.transform(avg1, avg2) >= 0
 
 
 class TestImageDistance:
