@@ -1,4 +1,7 @@
-"""Curvature analysis of strongly-regular graphs."""
+"""Curvature analysis of strongly-regular graphs. Returns a table with success rates of distinguishing graphs based on curvature measures as per Table 1 in https://arxiv.org/pdf/2301.12906 using our original implementation.
+
+This script takes in .g6 files and calculates the success rates of distinguishing graphs based on curvature measures. These files can be found in various repositories, such as https://github.com/kguo-sagecode/Strongly-regular-graphs.
+"""
 
 import argparse
 import logging
@@ -6,21 +9,31 @@ import warnings
 
 import gudhi as gd
 import gudhi.wasserstein
+
+
 import networkx as nx
 import numpy as np
 import pandas as pd
-from curvature import (
-    forman_curvature,
-    ollivier_ricci_curvature,
-    resistance_curvature,
-)
+
+
 from python_log_indenter import IndentedLoggerAdapter
 from scipy.stats import wasserstein_distance
+
+
 from utils import (
     calculate_persistent_homology,
     propagate_edge_attribute_to_nodes,
     propagate_node_attribute_to_edges,
 )
+
+import sys
+
+sys.path.append("..")
+
+
+#  ╭──────────────────────────────────────────────────────────╮
+#  │ Node Filtrations                                         │
+#  ╰──────────────────────────────────────────────────────────╯
 
 
 def degrees(G):
@@ -40,52 +53,23 @@ def pagerank(G):
     return [rank for _, rank in nx.pagerank(G).items()]
 
 
-def prob_rw(G, node, node_to_index):
-    """Probability measure based on random walk probabilities."""
-    import scipy as sp
+#  ╭──────────────────────────────────────────────────────────╮
+#  │ Curvature Measures                                       │
+#  ╰──────────────────────────────────────────────────────────╯
 
-    A = nx.to_scipy_sparse_array(G, format="csr").todense()
-    n, m = A.shape
-    D = sp.sparse.csr_array(
-        sp.sparse.spdiags(A.sum(axis=1), 0, m, n, format="csr")
-    ).todense()
-
-    P = np.linalg.inv(D) @ A
-
-    values = np.zeros(len(G.nodes))
-    values[node_to_index[node]] = 1.0
-
-    x = values
-    values = x + P @ x + P @ P @ x
-
-    values /= values.sum()
-    return values
+from scott.geometry.measures import (
+    forman_curvature,
+    ollivier_ricci_curvature,
+    resistance_curvature,
+)
 
 
-def prob_two_hop(G, node, node_to_index):
-    """Probability measure based on two-hop neighbourhoods."""
-    alpha = 0.5
-    values = np.zeros(len(G.nodes))
-    values[node_to_index[node]] = alpha
+#  ╭──────────────────────────────────────────────────────────╮
+#  │ Probability Measures                                     │
+#  ╰──────────────────────────────────────────────────────────╯
 
-    subgraph = nx.ego_graph(G, node, radius=2)
 
-    w = 0.25
-
-    direct_neighbors = list(G.neighbors(node))
-    for neighbor in direct_neighbors:
-        values[node_to_index[neighbor]] = (1 - alpha) * w
-
-    w = 0.05
-
-    for neighbor in subgraph.nodes():
-        if neighbor not in direct_neighbors and neighbor != node:
-            index = node_to_index[neighbor]
-            values[index] = (1 - alpha) * w
-
-    # TODO: Only necessary because I am making my life easy here.
-    values /= values.sum()
-    return values
+from scott.geometry.measures.ollivier import prob_rw, prob_two_hop
 
 
 def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
