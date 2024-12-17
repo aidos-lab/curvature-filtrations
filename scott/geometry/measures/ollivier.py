@@ -103,7 +103,6 @@ def ollivier_ricci_curvature(
 
     return np.asarray(curvature)
 
-
 #  ╭──────────────────────────────────────────────────────────╮
 #  │ Probability Measures                                     │
 #  ╰──────────────────────────────────────────────────────────╯
