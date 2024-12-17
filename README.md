@@ -80,7 +80,7 @@ python scripts/example.py
 
 # Tutorials
 
-For more a more in-depth walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks`. We offer the following two tutorials:
+For a walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks`. We offer the following two tutorials:
 
 ### 1. **Customizing how your comparison is executed:** `custom_compare.ipynb`
 
