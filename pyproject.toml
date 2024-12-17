@@ -21,6 +21,10 @@ scikit-learn = "^1.5.2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 
+
+[tool.poetry.group.docs.dependencies]
+furo = "^2024.8.6"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
