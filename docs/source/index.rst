@@ -6,9 +6,17 @@
 SCOTT documentation
 ===================
 
+.. image:: _static/scott_logo.png
+   :width: 120
+   :height: 120
+   :alt: SCOTT logo
+   :align: left
+
 Add your content using ``reStructuredText`` syntax. See the
 `reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
 documentation for details.
+
+
 
 **Testing the Build**
 Now testing code block::
