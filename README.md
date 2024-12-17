@@ -1,4 +1,4 @@
-# SCOTT <img src="scott_logo.png" alt="SCOTT logo"  style="float: right; width: 150px; height: 150px; margin-left: 10px;"> 
+# SCOTT <img src="docs/source/_static/scott_logo.png" alt="SCOTT logo"  style="float: right; width: 150px; height: 150px; margin-left: 10px;"> 
 
 ## **S**ynthesizing **C**urvature **O**perations and **T**opological **T**ools 
 
