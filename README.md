@@ -78,6 +78,30 @@ To use SCOTT with your own data, replace the example graph distributions with yo
 python scripts/example.py
 ```
 
+# Tutorials
+
+For more a more in-depth walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks`. We offer the following two tutorials:
+
+### 1. **Customizing how your comparison is executed:** `custom_compare.ipynb`
+
+**_Read this section if:_** Your primary goal is to find the distance between your graph distributions, but you are looking for additional ways to customize the curvature and distance measures used.
+
+Functionalities demonstrated in this tutorial include:
+- Changing the method used for curvature calculations and associated hyperparameters
+- Selecting and customizing the vectorization used to compare persistence diagrams
+
+### 2. **Breakdown of intermediate functionalities:** `bagpipeline.ipynb`
+
+**_Read this section if:_** You want to better understand the underlying workflow of this process and/or are interested in the output from intermediate steps in the process.
+
+Functionalities demonstrated in this tutorial include:
+- Calculating curvature for one graph or graph distribution
+- Executing a curvature filtration to produce a persistence diagram
+- Converting persistence diagrams into a topological descriptor (e.g. persistence landscape)
+- Computing the distance between topological descriptors
+
+Both tutorials are supported by `/notebooks/utils.py`.
+
 # Core Components
 
 ### KILT
