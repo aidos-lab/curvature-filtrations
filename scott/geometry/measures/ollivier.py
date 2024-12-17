@@ -2,6 +2,7 @@ import ot
 
 import networkx as nx
 import numpy as np
+import scipy as sp
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -101,3 +102,53 @@ def ollivier_ricci_curvature(
         curvature.append(1.0 - distance)
 
     return np.asarray(curvature)
+
+#  ╭──────────────────────────────────────────────────────────╮
+#  │ Probability Measures                                     │
+#  ╰──────────────────────────────────────────────────────────╯
+
+
+def prob_rw(G, node, node_to_index):
+    """Probability measure based on random walk probabilities."""
+
+    A = nx.to_scipy_sparse_array(G, format="csr").todense()
+    n, m = A.shape
+    D = sp.sparse.csr_array(
+        sp.sparse.spdiags(A.sum(axis=1), 0, m, n, format="csr")
+    ).todense()
+
+    P = np.linalg.inv(D) @ A
+
+    values = np.zeros(len(G.nodes))
+    values[node_to_index[node]] = 1.0
+
+    x = values
+    values = x + P @ x + P @ P @ x
+
+    values /= values.sum()
+    return values
+
+
+def prob_two_hop(G, node, node_to_index):
+    """Probability measure based on two-hop neighbourhoods."""
+    alpha = 0.5
+    values = np.zeros(len(G.nodes))
+    values[node_to_index[node]] = alpha
+
+    subgraph = nx.ego_graph(G, node, radius=2)
+
+    w = 0.25
+
+    direct_neighbors = list(G.neighbors(node))
+    for neighbor in direct_neighbors:
+        values[node_to_index[neighbor]] = (1 - alpha) * w
+
+    w = 0.05
+
+    for neighbor in subgraph.nodes():
+        if neighbor not in direct_neighbors and neighbor != node:
+            index = node_to_index[neighbor]
+            values[index] = (1 - alpha) * w
+
+    values /= values.sum()
+    return values
