@@ -43,23 +43,6 @@ class KILT:
         Here, `G` refers to the graph, `node` to the node whose measure is to be calculated, and `node_to_index` to the lookup map that maps a node identifier to a zero-based index.
 
         If `prob_fn` is set, providing `alpha` will not have an effect.
-
-    Methods
-    -------
-    G:
-        Getter (self -> nx.Graph) and setter (self, nx.Graph -> None) for attribute self._G, the graph associated with the KILT object.
-
-    curvature:
-        Getter (self -> np.array) and setter (self, np.array -> None) for np.array of the graph's curvature values.
-
-    fit(self, graph: nx.Graph) -> None:
-        Calculates the curvature values for the edges of the given graph according to the specifications of the KILT object, which can be retrieved from the curvature property.
-
-    transform(self, homology_dims: Optional[List[int]] = [0, 1],) -> PersistenceDiagram:
-        Executes a curvature filtration for the given homology dimensions. Can only be called after fit() is performed. Returns a persistence diagram stored in dictionary format.
-
-    fit_transform(self, graph, homology_dims: Optional[List[int]] = [0, 1]) -> PersistenceDiagram:
-        Combines fit and transform methods; i.e. calculates curvature and executes a filtration for the given homology dimensions. Returns a persistence diagram stored in dictionary format.
     """
 
     def __init__(

@@ -28,28 +28,6 @@ class Comparator:
     descriptor2 : One of {PersistenceLandscape (default), PersistenceImage}
         The summarizing topological descriptor for G2.
         Must match type of descriptor1 in order to compute distance, which encodes persistent homology inf`ormation.
-
-    Methods
-    -------
-    fit(self, G1, G2, metric="landscape", **kwargs) -> None:
-        User specifies two graphs or graph distributions for comparison and desired metric, one of "landscape" (default) or "image".
-        Using the TopologicalDistance subclass that corresponds to desired metric, converts G1 and G2 into their topological descriptors.
-
-    transform(self) -> float:
-        Dependent on running fit() first.
-        Leverages the TopologicalDistance object created in fit() to compute the distance between G1 and G2, as specified by fit() parameters.
-        Returns distance as a float.
-
-    fit_transform(self, G1, G2, metric="landscape") -> float:
-        Combines fit and transform methods; i.e. converts G1 and G2 into topological descriptors, then computes the distance between them.
-
-    Example
-    -------
-    ### An dummy example in which distance between persistence images of an Ollivier-Ricci curvature filtration for 2 nxGraphs (graph1 and graph2) is calculated.
-    comp = Comparator(measure='ollivier_ricci_curvature')
-    distance = comp.fit_transform(graph1, graph2, metric='image')
-    print(distance)
-    >>> 9.274264343274613
     """
 
     def __init__(
@@ -153,21 +131,33 @@ class Comparator:
 
     def fit_transform(self, G1, G2, metric="landscape", **kwargs) -> float:
         """Runs the fit() and transform() methods in succession.
-        Returns a numeric distance between G1 and G2, computed according to the given metric.
+            Returns a numeric distance between G1 and G2, computed according to the given metric.
 
-        Parameters
-        ----------
-        G1 : nx.Graph or List[nx.Graph]
-            The first graph or graph distribution for comparison.
-        G2 : nx.Graph or List[nx.Graph]
-            The first graph or graph distribution for comparison.
-        metric : str, default="landscape"
-            One of: {"landscape", "image"}. Indicates which topological descriptor to use for computing distance.
+            Parameters
+            ----------
+            G1 : nx.Graph or List[nx.Graph]
+                The first graph or graph distribution for comparison.
+            G2 : nx.Graph or List[nx.Graph]
+                The first graph or graph distribution for comparison.
+            metric : str, default="landscape"
+                One of: {"landscape", "image"}. Indicates which topological descriptor to use for computing distance.
 
-        Returns
+            Returns
+            -------
+            float :
+                The distance between G1 and G2.
+
+
+        Example
         -------
-        float :
-            The distance between G1 and G2.
+        >>> import networkx as nx
+        >>> from scott.compare import Comparator
+        >>> graph1 = nx.random_geometric_graph(100, 0.1)
+        >>> graph2 = nx.random_geometric_graph(100, 0.2)
+        >>> comp = Comparator(measure='ollivier_ricci_curvature')
+        >>> distance = comp.fit_transform(graph1, graph2, metric='image')
+        >>> print(distance)
+        >>> 9.274264343274613
         """
         self.fit(G1, G2, metric, **kwargs)
         return self.transform()
@@ -179,7 +169,9 @@ class Comparator:
     def _setup_distance(self, metric) -> TopologicalDistance:
         """Checks that metric is supported. If so, returns TopologicalDistance subclass associated with the metric."""
         # Check that the metric is supported
-        assert metric in supported_distances, f"Metric {metric} is not supported."
+        assert (
+            metric in supported_distances
+        ), f"Metric {metric} is not supported."
 
         return supported_distances[metric]
 
@@ -205,7 +197,9 @@ class Comparator:
         elif Comparator._is_graph(G):
             return [G]
         else:
-            raise ValueError("Input must be a networkx.Graph or a list of networkx.Graphs")
+            raise ValueError(
+                "Input must be a networkx.Graph or a list of networkx.Graphs"
+            )
 
     @staticmethod
     def _is_distribution(G):
