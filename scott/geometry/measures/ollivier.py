@@ -103,13 +103,30 @@ def ollivier_ricci_curvature(
 
     return np.asarray(curvature)
 
+
 #  ╭──────────────────────────────────────────────────────────╮
 #  │ Probability Measures                                     │
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def prob_rw(G, node, node_to_index):
-    """Probability measure based on random walk probabilities."""
+def prob_rw(G, node, node_to_index) -> np.ndarray:
+    """
+    Probability measure based on random walk probabilities.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        The input graph.
+    node : int or str
+        The node for which the probability measure is calculated.
+    node_to_index : dict
+        A dictionary mapping nodes to their corresponding indices in the adjacency matrix.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 1D array representing the probability measure based on random walk probabilities for the given node.
+    """
 
     A = nx.to_scipy_sparse_array(G, format="csr").todense()
     n, m = A.shape
@@ -129,8 +146,32 @@ def prob_rw(G, node, node_to_index):
     return values
 
 
-def prob_two_hop(G, node, node_to_index):
-    """Probability measure based on two-hop neighbourhoods."""
+def prob_two_hop(G, node, node_to_index) -> np.ndarray:
+    """
+    Compute the probability measure based on two-hop neighborhoods.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        The input graph.
+    node : int
+        The node for which the probability measure is computed.
+    node_to_index : dict
+        A dictionary mapping nodes to their corresponding indices in the output array.
+
+    Returns
+    -------
+    np.ndarray
+        An array representing the probability measure for the two-hop neighborhood of the given node.
+
+    Notes
+    -----
+    The probability measure is computed as follows:
+    - The given node is assigned a probability of `alpha`.
+    - Direct neighbors of the given node are assigned a probability of `(1 - alpha) * w`, where `w` is initially set to 0.25.
+    - Nodes within two hops but not direct neighbors are assigned a probability of `(1 - alpha) * w`, where `w` is set to 0.05.
+    - The resulting probabilities are normalized to sum to 1.
+    """
     alpha = 0.5
     values = np.zeros(len(G.nodes))
     values[node_to_index[node]] = alpha
