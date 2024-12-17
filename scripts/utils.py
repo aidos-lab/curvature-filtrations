@@ -8,6 +8,23 @@ import numpy as np
 
 
 def calculate_persistent_homology(G, k=3):
+    """
+    Calculate the persistent homology of a graph's clique complex up to dimension k.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        The input graph where nodes and edges may have a 'curvature' attribute.
+    k : int, optional
+        The maximum dimension of the homology to compute (default is 3).
+
+    Returns
+    -------
+    diagrams : list of list of tuple
+        A list of persistence diagrams for each dimension from 0 to k. Each
+        persistence diagram is a list of tuples (birth, death) representing
+        the birth and death times of homological features.
+    """
     """Calculate persistent homology of graph clique complex."""
     st = gd.SimplexTree()
 
