@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - jw_docs # Trigger workflow on new commits to the main branch
     tags:
       - "*" # Optional: also trigger on new tags
   workflow_dispatch: # Allow manual runs from GitHub UI
