@@ -34,16 +34,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --no-root
+          poetry install --no-interaction
 
       - name: Build Sphinx documentation
         run: |
-          poetry run sphinx-build -b html docs/source docs/build/
+          poetry run sphinx-build -b html docs/source docs/build/html
 
       - name: Upload documentation artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/build/
+          path: docs/build/html
 
   # Deploy the artifact to GitHub Pages.
   deploy:
