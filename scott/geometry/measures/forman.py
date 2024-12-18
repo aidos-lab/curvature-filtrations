@@ -49,9 +49,7 @@ def _forman_curvature_unweighted(G):
         target_neighbours = set(G.neighbors(target))
 
         n_triangles = len(source_neighbours.intersection(target_neighbours))
-        curvature.append(
-            float(4 - source_degree - target_degree + 3 * n_triangles)
-        )
+        curvature.append(float(4 - source_degree - target_degree + 3 * n_triangles))
 
     return np.asarray(curvature)
 
@@ -78,9 +76,7 @@ def _forman_curvature_weighted(G, weight):
         e_curvature = source_weight / edge_weight
         e_curvature += target_weight / edge_weight
 
-        parallel_edges = list(G.edges(source, data=weight)) + list(
-            G.edges(target, data=weight)
-        )
+        parallel_edges = list(G.edges(source, data=weight)) + list(G.edges(target, data=weight))
 
         for u, v, w in parallel_edges:
             if u > v:
@@ -120,17 +116,13 @@ def balanced_forman_curvature(G, weight=None):
 
     References
     ----------
-    .. [1] Topping, Jake, et al. "Understanding Over-Squashing and Bottlenecks
-           on Graphs via Curvature." International Conference on Learning
-           Representations. 2022.
+    Topping, Jake, et al. "Understanding Over-Squashing and Bottlenecks on Graphs via Curvature." International Conference on Learning Representations. 2022.
     """
     # Compute adjacency matrix and degree information
     A, d_in, d_out = _prepare_graph_data(G, weight)
 
     # Compute curvature values
-    curvature_values = [
-        _compute_edge_curvature(A, d_in, d_out, u, v) for u, v in G.edges()
-    ]
+    curvature_values = [_compute_edge_curvature(A, d_in, d_out, u, v) for u, v in G.edges()]
 
     return np.asarray(curvature_values)
 
@@ -160,10 +152,7 @@ def _compute_edge_curvature(A, d_in, d_out, u, v):
 
     # Balanced Forman Curvature
     curvature = (
-        (2 / d_max)
-        + (2 / d_min)
-        - 2
-        + (2 / d_max + 1 / d_min) * np.matmul(A, A)[i, j] * weight
+        (2 / d_max) + (2 / d_min) - 2 + (2 / d_max + 1 / d_min) * np.matmul(A, A)[i, j] * weight
     )
 
     if lambda_ij > 0:
