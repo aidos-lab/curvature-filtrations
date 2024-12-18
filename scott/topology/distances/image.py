@@ -98,7 +98,7 @@ class ImageDistance(TopologicalDistance):
         """
         common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
         difference = self._subtract_images(image1, image2)
-        distance = sum(self.norm(difference.pixels[dim]) for dim in common_dims)
+        distance = sum(self.compute_norm(difference.pixels[dim]) for dim in common_dims)
         return distance
 
     def fit_transform(self) -> float:

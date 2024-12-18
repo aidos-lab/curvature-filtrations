@@ -46,7 +46,7 @@ class TopologicalDistance(ABC):
         self.diagram1 = diagram1 if isinstance(diagram1, list) else [diagram1]
         self.diagram2 = diagram2 if isinstance(diagram2, list) else [diagram2]
 
-    def norm(self, x):
+    def compute_norm(self, x):
         """Compute norm of a vector x according to the specified order."""
         return np.linalg.norm(x, ord=self.norm_order)
 

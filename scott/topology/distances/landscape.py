@@ -105,7 +105,7 @@ class LandscapeDistance(TopologicalDistance):
         common_dims = set(landscape1.homology_dims).intersection(landscape2.homology_dims)
         difference = self._subtract_landscapes(landscape1, landscape2)
 
-        distance = sum(self.norm(difference.functions[dim]) for dim in common_dims)
+        distance = sum(self.compute_norm(difference.functions[dim]) for dim in common_dims)
         return distance
 
     def fit_transform(self) -> float:
