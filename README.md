@@ -1,8 +1,8 @@
-# SCOTT <img src="docs/source/_static/scott_logo.png" alt="SCOTT logo"  style="float: right; width: 150px; height: 150px; margin-left: 10px;"> 
+<img src="docs/source/_static/scott_logo.png" alt="SCOTT logo"  style="float: right; width: 150px; height: 150px; margin-left: 10px;">
 
-## **S**ynthesizing **C**urvature **O**perations and **T**opological **T**ools 
+# SCOTT
 
-
+## **S**ynthesizing **C**urvature **O**perations and **T**opological **T**ools
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/875f73368ad03e6cd94e/maintainability)](https://codeclimate.com/github/aidos-lab/curvature-filtrations/maintainability) ![GitHub contributors](https://img.shields.io/github/contributors/aidos-lab/CFGGME) ![GitHub](https://img.shields.io/github/license/aidos-lab/CFGGME) [![arXiv](https://img.shields.io/badge/arXiv-2301.12906-b31b1b.svg)](https://arxiv.org/abs/2301.12906)
 
@@ -87,6 +87,7 @@ For a walkthrough of customization options and the intermediary functionalities 
 **_Read this section if:_** Your primary goal is to find the distance between your graph distributions, but you are looking for additional ways to customize the curvature and distance measures used.
 
 Functionalities demonstrated in this tutorial include:
+
 - Changing the method used for curvature calculations and associated hyperparameters
 - Selecting and customizing the vectorization used to compare persistence diagrams
 
@@ -95,6 +96,7 @@ Functionalities demonstrated in this tutorial include:
 **_Read this section if:_** You want to better understand the underlying workflow of this process and/or are interested in the output from intermediate steps in the process.
 
 Functionalities demonstrated in this tutorial include:
+
 - Calculating curvature for one graph or graph distribution
 - Executing a curvature filtration to produce a persistence diagram
 - Converting persistence diagrams into a topological descriptor (e.g. persistence landscape)
