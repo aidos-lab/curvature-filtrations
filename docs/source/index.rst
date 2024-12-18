@@ -72,11 +72,11 @@ Run our Example Script: ::
 Tutorials
 -------------
 
-For a walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks`. We offer the following two tutorials:
+For a walkthrough of customization options and the intermediary functionalities supported by SCOTT objects, please see `/notebooks` in `our repo <https://github.com/aidos-lab/curvature-filtrations>`_. We offer the following two tutorials:
 
 1. Customizing how your comparison is executed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:code:`custom_compare.ipynb`
+`custom_compare.ipynb`
 
 **Read this section if:** Your primary goal is to find the distance between your graph distributions, but you are looking for additional ways to customize the curvature and distance measures used.
 
@@ -86,7 +86,7 @@ Functionalities demonstrated in this tutorial include:
 
 2. Breakdown of intermediate functionalities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:code:`bagpipeline.ipynb`
+`bagpipeline.ipynb`
 
 **Read this section if:** You want to better understand the underlying workflow of this process and/or are interested in the output from intermediate steps in the process.
 
@@ -129,3 +129,18 @@ Please find the module documentation below.
    topology/distances
    topology/representations
    topology/ph
+
+|
+|
+|
+
+.. image:: _static/aidos_logo.png
+   :width: 120
+   :height: 120
+   :alt: SCOTT logo
+   :align: left
+
+|
+| **Interested in more of our work?**
+|
+| See what we are working on at `AIDOS Lab <https://aidos.group>`_ or check out our `GitHub <https://github.com/aidos-lab>`_.
