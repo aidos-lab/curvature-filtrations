@@ -96,48 +96,13 @@ Functionalities demonstrated in this tutorial include:
 * Converting persistence diagrams into a topological descriptor (e.g. persistence landscape)
 * Computing the distance between topological descriptors
 
-Both tutorials are supported by :code:`/notebooks/utils.py`.
-
-Core Components
-----------------
-
-KILT
-^^^^^
-
-:code:`KILT` stands for: 
-Krvature-Informed Links and Topology is an object that can compute curvature filtrations for single graphs. ::
-
-   import networkx as nx
-   from scott import KILT,Comparator
-
-   G = nx.erdos_reyni(14,0.4)
-
-   kilt = KILT(measure="forman_curvature")
-
-   D = kilt.fit_transform(G)
-   print(f"Forman Curvature Filtration:")
-   print(f"Curvature Filtration Values:{kilt.curvature}")
-   print(D)
+Both tutorials are supported by helper functions in :code:`/notebooks/utils.py`.
 
 
-Comparator
-^^^^^^^^^^
+Documentation
+-------------
 
-:code:`Comparator` 
-handles comparisons between graphs or graph distributions ::
-
-   import networkx as nx
-   from scott import KILT, Comparator
-
-   graph_dist1 = [nx.erdos_reyni(10,0.4) for _ in range(40)]
-   graph_dist2 = [nx.erdos_reyni(20,0.6) for _ in range(50)]
-
-   compare = Compare(measure="forman_curvature")
-
-   dist = compare.fit_transform(graph_dist1,graph_dist2,metric="image")
-
-   print(f"Distance between distributions measured by Forman Filtration: {dist}")
-
+Please find the module documentation below.
 
 
 .. toctree::
@@ -152,10 +117,3 @@ handles comparisons between graphs or graph distributions ::
    compare
    geometry
    topology
-
-
-.. Indices and tables
-.. ==================
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
