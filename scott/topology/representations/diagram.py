@@ -31,8 +31,7 @@ class PersistenceDiagram:
         Returns
         -------
         Dict[int,np.array]
-            A dictionary that maps np.arrays of persistence point tuples (values) to each homology dimenion (key).
-            Will return None if persistence_pts have not yet been set.
+            A dictionary that maps np.arrays of persistence point tuples (values) to each homology dimenion (key). Will return None if persistence_pts have not yet been set.
         """
         return self._persistence_pts
 

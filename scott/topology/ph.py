@@ -26,11 +26,6 @@ class GraphHomology:
 
     filter_attribute : str, optional
         The edge attribute to use as the filtration value. Default is "curvature".
-
-    Methods
-    -------
-    calculate_persistent_homology(self, G : nx.Graph, extended_persistence: bool = False) -> PersistenceDiagram):
-        Uses helper methods _build_simplex_tree to execute a filtration on the given graph and _format_persistence_diagrams to store the resulting persistent homology data in a PersistenceDiagram object.
     """
 
     # Small constants to ensure numerical stability and prevent empty persistence intervals
@@ -53,9 +48,7 @@ class GraphHomology:
         filter_attribute : str, optional
             The edge attribute to use as the filtration value. Default is "curvature".
         """
-        self.homology_dims = (
-            homology_dims if homology_dims is not None else [0, 1]
-        )
+        self.homology_dims = homology_dims if homology_dims is not None else [0, 1]
         self.filter_attribute = filter_attribute
         self.max_dimension = max(self.homology_dims) + 1
         self.mask_infinite_features = mask_infinite_features
@@ -124,9 +117,7 @@ class GraphHomology:
 
         return st
 
-    def _format_persistence_diagrams(
-        self, simplex_tree: gd.SimplexTree
-    ) -> PersistenceDiagram:
+    def _format_persistence_diagrams(self, simplex_tree: gd.SimplexTree) -> PersistenceDiagram:
         """
         Converts a gd.SimplexTree into a PersistenceDiagram object.
 
@@ -151,9 +142,7 @@ class GraphHomology:
                     simplex_tree.persistence_intervals_in_dimension(dim)
                 )
             else:
-                persistence_pairs = (
-                    simplex_tree.persistence_intervals_in_dimension(dim)
-                )
+                persistence_pairs = simplex_tree.persistence_intervals_in_dimension(dim)
             persistence_pts[dim] = persistence_pairs
         # Store persistence points in PersistenceDiagram object
         diagram.persistence_pts = persistence_pts

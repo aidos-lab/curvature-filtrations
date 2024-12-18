@@ -18,7 +18,7 @@ class PersistenceLandscape:
         Determines the number of samples for the piece-wise landscape functions (i.e. how many points are calculated).
     _functions : Dict[int, np.array]
         A dictionary that maps the homology dimension to a np.array of its landscape functions.
-            Each np.array contains {num_functions * resolution} floats, which are the {resolution} number of samples for all {num_functions} landscape functions concatenated together.
+        Each np.array contains {num_functions * resolution} floats, which are the {resolution} number of samples for all {num_functions} landscape functions concatenated together.
         Initialized to None, set using setter method.
     """
 

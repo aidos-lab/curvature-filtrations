@@ -21,7 +21,7 @@ class PersistenceImage:
         The dimensions of the persistence image in pixels.
     _pixels : Dict[int, np.array]
         A dictionary that maps each homology dimension to its persistence image in the form of a np.array.
-            Each np.array has shape (resolution[0] * resolution[1], 1), and contains the values of the persistence surface at each pixel.
+        Each np.array has shape (resolution[0] * resolution[1], 1), and contains the values of the persistence surface at each pixel.
         Initialized to None, set using setter method.
     """
 
