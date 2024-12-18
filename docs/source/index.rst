@@ -111,9 +111,21 @@ Please find the module documentation below.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Modules
+   :caption: Core Components
 
    kilt
    compare
-   geometry
-   topology
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Geometry
+
+   geometry/measures
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Topology
+
+   topology/distances
+   topology/representations
+   topology/ph
