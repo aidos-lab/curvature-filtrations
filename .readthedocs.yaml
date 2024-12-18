@@ -1,16 +1,21 @@
 version: 2
 
 build:
-  # Required to get access to more recent Python versions.
-  image: testing
-
-sphinx:
-  configuration: docs/source/conf.py
+  os: ubuntu-latest
+  tools:
+    python: "3.9" # Specify the Python version
+  jobs:
+    include:
+      - job: build
+        image: testing # If you need a custom image, specify it here
 
 python:
-  version: 3.9
+  version: 3.9 # This is still valid, but it should be inside `build.tools`
   install:
     - method: pip
       path: .
       extra_requirements:
         - docs
+
+sphinx:
+  configuration: docs/source/conf.py # Path to your Sphinx configuration file
