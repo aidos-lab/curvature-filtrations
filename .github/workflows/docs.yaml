@@ -4,7 +4,8 @@ name: Build and Deploy Documentation
 on:
   push:
     branches:
-      - main # Trigger workflow on new commits to the main branch
+      - main
+      - jw_docs # Trigger workflow on new commits to the main branch
     tags:
       - "*" # Optional: also trigger on new tags
   workflow_dispatch: # Allow manual runs from GitHub UI
