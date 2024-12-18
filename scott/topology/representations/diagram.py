@@ -1,5 +1,6 @@
 from typing import Dict
 import numpy as np
+import gudhi as gd
 
 
 class PersistenceDiagram:
@@ -15,14 +16,6 @@ class PersistenceDiagram:
         Each np.array contains tuples of (birth, death) values for each persistence pair.
         Note that the attribute homology_dims must be a subset of the list of keys (hom. dims.) in this dictionary.
         Initialized to None, set using setter method.
-
-    Methods
-    -------
-    persistence_points:
-        Getter (self -> Dict[int, np.array]) and setter (self, Dict[int, np.array] -> None) for attribute self._persistence_pts, the dictionary that .
-
-    get_pts_for_dim(self, dimension):
-        Getter method for the np.array of persistence points for the given homology dimension.
     """
 
     def __init__(self, homology_dims=[0, 1]):
@@ -38,8 +31,7 @@ class PersistenceDiagram:
         Returns
         -------
         Dict[int,np.array]
-            A dictionary that maps np.arrays of persistence point tuples (values) to each homology dimenion (key).
-            Will return None if persistence_pts have not yet been set.
+            A dictionary that maps np.arrays of persistence point tuples (values) to each homology dimenion (key). Will return None if persistence_pts have not yet been set.
         """
         return self._persistence_pts
 
@@ -60,6 +52,16 @@ class PersistenceDiagram:
             self.persistence_pts != None
         ), "Persistence points have not been added to the PersistenceDiagram object"
         return self.persistence_pts[dimension]
+
+    def plot(self):
+        """Plots the persistence diagram using Gudhi’s built-in functionality."""
+        # Converting to format that gudhi accepts: [(dim, (birth, death)), ...)]
+        persistence = []
+        for dim in self.homology_dims:
+            for point in self.get_pts_for_dim(dim):
+                persistence.append((dim, (point[0], point[1])))
+        # Using built-in functionality
+        gd.plot_persistence_diagram(persistence)
 
     def __str__(self) -> str:
         name = "This is a PersistenceDiagram object with the following (birth, death) pairs: \n\t"

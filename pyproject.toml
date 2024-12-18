@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "curvature-filtrations"
-version = "0.1.0"
+version = "0.1.1"
 description = "SCOTT: Synthesizing Curvature Operations and Topology Tools. Use curvature filtrations for graphs and graph distributions!"
 authors = ["Jeremy Wayland <jeremy.don.wayland@gmail.com>", "Emily Simons<emsimons4@gmail.com>", "Bastian Rieck <bastian@rieck.me>"]
 license = "BSD 3-Clause License"
@@ -20,6 +20,10 @@ scikit-learn = "^1.5.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
+
+
+[tool.poetry.group.docs.dependencies]
+furo = "^2024.8.6"
 
 [build-system]
 requires = ["poetry-core"]

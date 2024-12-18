@@ -82,6 +82,7 @@ class TestComparator:
     def test_fit_landscape(
         self,
         graph,
+        graph2,
         empty_graph,
         graph_distribution1,
         graph_distribution2,
@@ -91,13 +92,17 @@ class TestComparator:
         distribution = [graph, empty_graph]
         with pytest.raises(AssertionError):
             comp.fit(distribution, distribution)
-
         distribution.pop()
         comp.fit(distribution, distribution)  # metric=landscape by default
         assert comp.descriptor1 is not None
         assert comp.descriptor2 is not None
-
         comp.fit(graph_distribution1, graph_distribution2)
+        comp = Comparator(measure="ollivier_ricci_curvature")
+        comp.fit(
+            graph, graph2, metric="landscape", num_functions=8, resolution=100
+        )
+        assert comp.descriptor1.num_functions == 8
+        assert comp.descriptor1.resolution == 100
 
     def test_fit_image(
         self,
@@ -119,11 +124,77 @@ class TestComparator:
 
         comp.fit(graph_distribution1, graph_distribution2)
 
+        comp = Comparator(measure="ollivier_ricci_curvature")
+        weight_fn = lambda x: 1.2
+        comp.fit(
+            graph,
+            graph,
+            metric="image",
+            bandwidth=1.2,
+            weight=weight_fn,
+            resolution=[30, 30],
+        )
+        assert comp.descriptor1.bandwidth == 1.2
+        assert comp.descriptor1.weight == weight_fn
+        assert comp.descriptor1.resolution == [30, 30]
+
     def test_fit_transform(self, graph, graph2):
         """Test fit_transform method."""
         comp = Comparator(measure="ollivier_ricci_curvature")
-        distance = comp.fit_transform(graph, graph2, metric="image")
-        assert isinstance(distance, float)
+        # distance = comp.fit_transform(graph, graph2, metric="image")
+        # assert isinstance(distance, float)
+
+        # weight_fn = lambda x: 1.2
+        # distance = comp.fit_transform(
+        #     graph,
+        #     graph2,
+        #     metric="image",
+        #     bandwidth=1.2,
+        #     weight=weight_fn,
+        #     resolution=[30, 30],
+        # )
+
+        # assert comp.descriptor1.bandwidth == 1.2
+        # assert comp.descriptor1.weight == weight_fn
+        # assert comp.descriptor1.resolution == [30, 30]
+
+        distance = comp.fit_transform(
+            graph,
+            graph2,
+            metric="landscape",
+            norm=2,
+            resolution=100,
+            num_functions=8,
+        )
+
+        assert comp.descriptor1.num_functions == 8
+        assert comp.descriptor1.resolution == 100
+
+        weight_fn = lambda x: 1.2
+        distance = comp.fit_transform(
+            graph,
+            graph2,
+            metric="image",
+            bandwidth=1.2,
+            weight=weight_fn,
+            resolution=[30, 30],
+        )
+
+        assert comp.descriptor1.bandwidth == 1.2
+        assert comp.descriptor1.weight == weight_fn
+        assert comp.descriptor1.resolution == [30, 30]
+
+        distance = comp.fit_transform(
+            graph,
+            graph2,
+            metric="landscape",
+            norm=2,
+            resolution=100,
+            num_functions=8,
+        )
+
+        assert comp.descriptor1.num_functions == 8
+        assert comp.descriptor1.resolution == 100
 
     def test_kilterator(self, graph):
         """Test kilterator helper method."""

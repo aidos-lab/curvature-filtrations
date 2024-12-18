@@ -2,6 +2,7 @@ import ot
 
 import networkx as nx
 import numpy as np
+import scipy as sp
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -101,3 +102,94 @@ def ollivier_ricci_curvature(
         curvature.append(1.0 - distance)
 
     return np.asarray(curvature)
+
+
+#  ╭──────────────────────────────────────────────────────────╮
+#  │ Probability Measures                                     │
+#  ╰──────────────────────────────────────────────────────────╯
+
+
+def prob_rw(G, node, node_to_index) -> np.ndarray:
+    """
+    Probability measure based on random walk probabilities.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        The input graph.
+    node : int or str
+        The node for which the probability measure is calculated.
+    node_to_index : dict
+        A dictionary mapping nodes to their corresponding indices in the adjacency matrix.
+
+    Returns
+    -------
+    numpy.ndarray
+        A 1D array representing the probability measure based on random walk probabilities for the given node.
+    """
+
+    A = nx.to_scipy_sparse_array(G, format="csr").todense()
+    n, m = A.shape
+    D = sp.sparse.csr_array(
+        sp.sparse.spdiags(A.sum(axis=1), 0, m, n, format="csr")
+    ).todense()
+
+    P = np.linalg.inv(D) @ A
+
+    values = np.zeros(len(G.nodes))
+    values[node_to_index[node]] = 1.0
+
+    x = values
+    values = x + P @ x + P @ P @ x
+
+    values /= values.sum()
+    return values
+
+
+def prob_two_hop(G, node, node_to_index) -> np.ndarray:
+    """
+    Compute the probability measure based on two-hop neighborhoods.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        The input graph.
+    node : int
+        The node for which the probability measure is computed.
+    node_to_index : dict
+        A dictionary mapping nodes to their corresponding indices in the output array.
+
+    Returns
+    -------
+    np.ndarray
+        An array representing the probability measure for the two-hop neighborhood of the given node.
+
+    Notes
+    -----
+    The probability measure is computed as follows:
+    - The given node is assigned a probability of `alpha`.
+    - Direct neighbors of the given node are assigned a probability of `(1 - alpha) * w`, where `w` is initially set to 0.25.
+    - Nodes within two hops but not direct neighbors are assigned a probability of `(1 - alpha) * w`, where `w` is set to 0.05.
+    - The resulting probabilities are normalized to sum to 1.
+    """
+    alpha = 0.5
+    values = np.zeros(len(G.nodes))
+    values[node_to_index[node]] = alpha
+
+    subgraph = nx.ego_graph(G, node, radius=2)
+
+    w = 0.25
+
+    direct_neighbors = list(G.neighbors(node))
+    for neighbor in direct_neighbors:
+        values[node_to_index[neighbor]] = (1 - alpha) * w
+
+    w = 0.05
+
+    for neighbor in subgraph.nodes():
+        if neighbor not in direct_neighbors and neighbor != node:
+            index = node_to_index[neighbor]
+            values[index] = (1 - alpha) * w
+
+    values /= values.sum()
+    return values

@@ -29,18 +29,6 @@ class ImageDistance(TopologicalDistance):
         The dimensions of the persistence image in pixels.
     image_transformer : gudhi package object
         The object that powers the transformation of persistence diagrams into persistence images.
-
-    Methods
-    supports_distribution() -> True :
-        Indicates that ImageDistance supports comparison between distributions.
-    fit() -> PersistenceImage, PersistenceImage:
-        Converts persistence diagrams into persistence images.
-        If diagram1 and/or diagram2 are distributions, the average persistence image for each distribution is returned.
-    transform(image1 : PersistenceImage, image2 : PersistenceImage) -> float :
-        Takes in two persistence images and computes the distance between them.
-    fit_transform() -> float :
-        Runs fit() to create two persistence images and then transform() to calculate the distance between them.
-
     """
 
     def __init__(
@@ -68,7 +56,7 @@ class ImageDistance(TopologicalDistance):
     #  │ Core Methods: Fit & Transform                            │
     #  ╰──────────────────────────────────────────────────────────╯
 
-    def fit(self, **kwargs):
+    def fit(self):
         """Computes and returns persistence images from the persistence diagrams, diagram1 and diagram2 (or the average persistence images, if diagram1 and/or diagram2 are distributions.
 
         Returns
@@ -108,11 +96,9 @@ class ImageDistance(TopologicalDistance):
         float :
             The norm-based distance between the two given persistence landscapes.
         """
-        common_dims = set(image1.homology_dims).intersection(
-            image2.homology_dims
-        )
+        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
         difference = self._subtract_images(image1, image2)
-        distance = sum(self.norm(difference.pixels[dim]) for dim in common_dims)
+        distance = sum(self.compute_norm(difference.pixels[dim]) for dim in common_dims)
         return distance
 
     def fit_transform(self) -> float:
@@ -129,9 +115,7 @@ class ImageDistance(TopologicalDistance):
     #  │ Helper Functions                                         │
     #  ╰──────────────────────────────────────────────────────────╯
 
-    def _convert_to_image(
-        self, diagrams: List[PersistenceDiagram]
-    ) -> List[PersistenceImage]:
+    def _convert_to_image(self, diagrams: List[PersistenceDiagram]) -> List[PersistenceImage]:
         """Convert each persistence diagram in the given list into to a persistence image in the returned list."""
         images = []
 
@@ -144,17 +128,13 @@ class ImageDistance(TopologicalDistance):
             )
             pixels = {}
             for dim, points in diagram.persistence_pts.items():
-                transformed_points = self.image_transformer.fit_transform(
-                    [points]
-                )[0]
+                transformed_points = self.image_transformer.fit_transform([points])[0]
                 pixels[dim] = transformed_points
             img.pixels = pixels
             images.append(img)
         return images
 
-    def _average_image(
-        self, images: List[PersistenceImage]
-    ) -> PersistenceImage:
+    def _average_image(self, images: List[PersistenceImage]) -> PersistenceImage:
         """Computes the average persistence image given multiple persistence images."""
         avg_pixels = {}
 
@@ -189,9 +169,7 @@ class ImageDistance(TopologicalDistance):
         self, image1: PersistenceImage, image2: PersistenceImage
     ) -> PersistenceImage:
         """Subtracts two images for each common dimension, returning a PersistenceImage that represents the difference."""
-        common_dims = set(image1.homology_dims).intersection(
-            image2.homology_dims
-        )
+        common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
         assert (
             image1.resolution == image2.resolution
         ), "Cannot subtract images with different resolutions."
@@ -205,9 +183,7 @@ class ImageDistance(TopologicalDistance):
         # subtraction
         diff_pixels = {}
         for dim in common_dims:
-            diff_pixels[dim] = image1.get_pixels_for_dim(
-                dim
-            ) - image2.get_pixels_for_dim(dim)
+            diff_pixels[dim] = image1.get_pixels_for_dim(dim) - image2.get_pixels_for_dim(dim)
         diff_pi.pixels = diff_pixels
         return diff_pi
 
