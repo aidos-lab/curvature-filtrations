@@ -16,14 +16,6 @@ class PersistenceDiagram:
         Each np.array contains tuples of (birth, death) values for each persistence pair.
         Note that the attribute homology_dims must be a subset of the list of keys (hom. dims.) in this dictionary.
         Initialized to None, set using setter method.
-
-    Methods
-    -------
-    persistence_points:
-        Getter (self -> Dict[int, np.array]) and setter (self, Dict[int, np.array] -> None) for attribute self._persistence_pts, the dictionary that .
-
-    get_pts_for_dim(self, dimension):
-        Getter method for the np.array of persistence points for the given homology dimension.
     """
 
     def __init__(self, homology_dims=[0, 1]):

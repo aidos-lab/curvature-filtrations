@@ -29,18 +29,6 @@ class ImageDistance(TopologicalDistance):
         The dimensions of the persistence image in pixels.
     image_transformer : gudhi package object
         The object that powers the transformation of persistence diagrams into persistence images.
-
-    Methods
-    supports_distribution() -> True :
-        Indicates that ImageDistance supports comparison between distributions.
-    fit() -> PersistenceImage, PersistenceImage:
-        Converts persistence diagrams into persistence images.
-        If diagram1 and/or diagram2 are distributions, the average persistence image for each distribution is returned.
-    transform(image1 : PersistenceImage, image2 : PersistenceImage) -> float :
-        Takes in two persistence images and computes the distance between them.
-    fit_transform() -> float :
-        Runs fit() to create two persistence images and then transform() to calculate the distance between them.
-
     """
 
     def __init__(

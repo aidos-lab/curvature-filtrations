@@ -16,19 +16,6 @@ class TopologicalDistance(ABC):
         The List[PersistenceDiagram] to be compared with diagram1.
     norm : int, default=2.
         Defines what norm will be used for calculations. Default is 2.
-
-    Core Methods
-    -------
-    norm(x) -> float:
-        Returns the norm of vector x according to the order specified in the norm attribute.
-    _is_distribution(diagram) -> bool:
-        Returns True if input is a list (i.e. distribution), False otherwise.
-    supports_distribution() -> bool:
-        Returns True if the distance type supports comparing distributions of persistence diagrams.
-    fit -> avg1, avg2 :
-        Converts diagram1 and diagram2 into average topological descriptors.
-    transform(descriptor1, descriptor2) -> float:
-        Computes the distance between inputted topological descriptors and returns it as a float.
     """
 
     def __init__(self, diagram1, diagram2, norm=2) -> None:
@@ -75,7 +62,7 @@ class TopologicalDistance(ABC):
 
     @abstractmethod
     def fit(self, **kwargs):
-        """Convert persistence diagrams to topological descriptors."""
+        """Converts persistence diagrams to topological descriptors."""
         raise NotImplementedError
 
     @abstractmethod

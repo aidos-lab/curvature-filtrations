@@ -20,18 +20,6 @@ class PersistenceLandscape:
         A dictionary that maps the homology dimension to a np.array of its landscape functions.
             Each np.array contains {num_functions * resolution} floats, which are the {resolution} number of samples for all {num_functions} landscape functions concatenated together.
         Initialized to None, set using setter method.
-
-    Methods
-    -------
-    functions:
-        Getter (self -> Dict[int, np.array]) and setter (self, Dict[int, np.array] -> None) for attribute self._functions, which stores the landscape functions.
-    get_fns_for_dim(self, dim : int) -> np.array:
-        Getter method for the np.array containing the landscape functions for the given homology dimension.
-    get_fn_for_dim(self, dim : int, fn_num : int) -> List[float]:
-        Getter method for the {fn_num}th landscape function for the given homology dimension.
-    _separate_landscape_functions(self) -> Dict[int, np.array]:
-        Returns an amended function dictionary, where np.array values hold {num_functions} lists, each with {resolution} floats, as opposed to simply {num_functions * resolution} floats.
-        Thus the landscape functions are stored into separate lists within the np.array, rather than being concatenated.
     """
 
     def __init__(self, homology_dims=[0, 1], num_functions=5, resolution=1000):

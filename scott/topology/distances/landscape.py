@@ -27,18 +27,6 @@ class LandscapeDistance(TopologicalDistance):
         The number of landscape functions to be computed.
     landscape_transformer : gudhi package object
         The object that powers the transformation of persistence diagrams to persistence landscapes.
-
-    Methods
-    -------
-    supports_distribution() -> True :
-        Indicates that LandscapeDistance supports comparison between distributions.
-    fit() -> PersistenceLandscape, PersistenceLandscape:
-        Converts persistence diagrams into persistence landscapes.
-        If diagram1 and/or diagram2 are distributions, the average persistence landscapes for each distribution is returned.
-    transform(landscape1 : PersistenceLandsape, landscape2 : PersistenceLandscape) -> float :
-        Takes in two persistence landscapes and computes the distance between them.
-    fit_transform() -> float :
-        Runs fit() to create two persistence landscapes and then transform() to calculate the distance between them.
     """
 
     def __init__(self, diagram1, diagram2, norm=2, resolution=1000, num_functions=5) -> None:
