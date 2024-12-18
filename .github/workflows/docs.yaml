@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Sphinx documentation
         run: |
-          poetry run sphinx-build -b html docs/source docs/build/html
+          poetry run sphinx-build -b html docs/source docs/build/
 
       - name: Upload documentation artifact
         uses: actions/upload-pages-artifact@v3
