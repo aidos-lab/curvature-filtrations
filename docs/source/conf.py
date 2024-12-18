@@ -33,7 +33,7 @@ html_theme = "furo"
 html_static_path = ["_static"]
 # Ensures that modules are sorted correctly. Since they all pertain to
 # the same package, the prefix itself can be ignored.
-modindex_common_prefix = ["scott."]
+# modindex_common_prefix = ["scott."]
 html_theme_options = {
     "source_repository": "https://github.com/aidos-lab/curvature-filtrations/",
     "source_branch": "main",

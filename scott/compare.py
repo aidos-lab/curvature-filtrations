@@ -131,21 +131,21 @@ class Comparator:
 
     def fit_transform(self, G1, G2, metric="landscape", **kwargs) -> float:
         """Runs the fit() and transform() methods in succession.
-            Returns a numeric distance between G1 and G2, computed according to the given metric.
+        Returns a numeric distance between G1 and G2, computed according to the given metric.
 
-            Parameters
-            ----------
-            G1 : nx.Graph or List[nx.Graph]
-                The first graph or graph distribution for comparison.
-            G2 : nx.Graph or List[nx.Graph]
-                The first graph or graph distribution for comparison.
-            metric : str, default="landscape"
-                One of: {"landscape", "image"}. Indicates which topological descriptor to use for computing distance.
+        Parameters
+        ----------
+        G1 : nx.Graph or List[nx.Graph]
+            The first graph or graph distribution for comparison.
+        G2 : nx.Graph or List[nx.Graph]
+            The first graph or graph distribution for comparison.
+        metric : str, default="landscape"
+            One of: {"landscape", "image"}. Indicates which topological descriptor to use for computing distance.
 
-            Returns
-            -------
-            float :
-                The distance between G1 and G2.
+        Returns
+        -------
+        float :
+            The distance between G1 and G2.
 
 
         Example
