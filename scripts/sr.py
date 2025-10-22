@@ -111,11 +111,7 @@ def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
     for i, Gi in enumerate(graphs):
         for j, Gj in enumerate(graphs):
             if i < j:
-                access_fn = (
-                    nx.get_node_attributes
-                    if node_level
-                    else nx.get_edge_attributes
-                )
+                access_fn = nx.get_node_attributes if node_level else nx.get_edge_attributes
 
                 ci = list(access_fn(Gi, "curvature").values())
                 cj = list(access_fn(Gj, "curvature").values())
@@ -134,9 +130,7 @@ def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
         if node_level:
             propagate_node_attribute_to_edges(graph, "curvature")
         else:
-            propagate_edge_attribute_to_nodes(
-                graph, "curvature", pooling_fn=lambda x: -1
-            )
+            propagate_edge_attribute_to_nodes(graph, "curvature", pooling_fn=lambda x: -1)
 
         diagrams = calculate_persistent_homology(graph, k=k)
         persistence_diagrams.append(diagrams)
@@ -147,9 +141,7 @@ def run_experiment(graphs, curvature_fn, prob_fn, k, node_level=False):
         for j, Gj in enumerate(graphs):
             if i < j:
                 distance = 0.0
-                for D1, D2 in zip(
-                    persistence_diagrams[i], persistence_diagrams[j]
-                ):
+                for D1, D2 in zip(persistence_diagrams[i], persistence_diagrams[j]):
                     distance += gudhi.bottleneck.bottleneck_distance(
                         np.asarray(D1), np.asarray(D2), e=1e-10
                     )
@@ -268,9 +260,7 @@ if __name__ == "__main__":
         log.add()
         log.info(f"Probability measure: {name}")
 
-        e1, e2 = run_experiment(
-            graphs, ollivier_ricci_curvature, prob_fn, args.k, False
-        )
+        e1, e2 = run_experiment(graphs, ollivier_ricci_curvature, prob_fn, args.k, False)
 
         rows.append(
             {

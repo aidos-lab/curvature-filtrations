@@ -87,9 +87,7 @@ class KILT:
         """Getter method for the curvature values of the graph."""
         if self.G is None:
             return None
-        return self._unpack_curvature_values(
-            nx.get_edge_attributes(self.G, name=self.measure)
-        )
+        return self._unpack_curvature_values(nx.get_edge_attributes(self.G, name=self.measure))
 
     @curvature.setter
     def curvature(self, values: list) -> None:
@@ -250,9 +248,7 @@ class KILT:
 
     def _graph_is_not_empty(self, graph) -> None:
         """Asserts that the inputted graph is not empty (i.e. has nodes and edges)."""
-        assert (
-            len(graph.nodes) > 0
-        ), "Graph must have nodes to compute curvature"
+        assert len(graph.nodes) > 0, "Graph must have nodes to compute curvature"
 
     @staticmethod
     def _unpack_curvature_values(
@@ -279,6 +275,4 @@ class KILT:
 
     def __repr__(self) -> str:
         """Return a string representation of the KILT object."""
-        return (
-            f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
-        )
+        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"

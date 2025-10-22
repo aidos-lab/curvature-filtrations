@@ -91,9 +91,7 @@ def _pairwise_resistances(G, weight=None):
     R = np.zeros(shape=(n, n))
 
     # List of connected components with original node order
-    components = list(
-        [G.subgraph(c).copy() for c in nx.connected_components(G)]
-    )
+    components = list([G.subgraph(c).copy() for c in nx.connected_components(G)])
     for C in components:
         for source, target in C.edges():
             i, j = node_to_index[source], node_to_index[target]
@@ -110,9 +108,7 @@ def _pairwise_resistances(G, weight=None):
     return R, node_to_index
 
 
-def _node_resistance_curvature(
-    G, node, weight=None, R=None, node_to_index=None
-):
+def _node_resistance_curvature(G, node, weight=None, R=None, node_to_index=None):
     """Calculate Resistance Curvature of a given node in a graph 'G'.
 
     This function calculates the resistance curvature of only

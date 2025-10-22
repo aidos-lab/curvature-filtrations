@@ -1,4 +1,5 @@
 "Example: Computing Distance between 2 ER Graph Distributions"
+
 import networkx as nx
 from scott.compare import Comparator
 
@@ -58,8 +59,6 @@ print(
 # Using the Persistence Image Vectorization
 print(
     "Distance between distributions with persistence image vectorization: {}".format(
-        comp_forman.fit_transform(
-            graph_distribution1, graph_distribution2, metric="image"
-        )
+        comp_forman.fit_transform(graph_distribution1, graph_distribution2, metric="image")
     )
 )

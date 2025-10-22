@@ -10,9 +10,7 @@ import scipy as sp
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def ollivier_ricci_curvature(
-    G, alpha=0.0, weight=None, prob_fn=None
-) -> np.ndarray:
+def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None) -> np.ndarray:
     """Calculate Ollivier--Ricci curvature for graphs that allows for a custom probability measure.
 
     This function calculates the Ollivier--Ricci curvature of a graph,
@@ -130,9 +128,7 @@ def prob_rw(G, node, node_to_index) -> np.ndarray:
 
     A = nx.to_scipy_sparse_array(G, format="csr").todense()
     n, m = A.shape
-    D = sp.sparse.csr_array(
-        sp.sparse.spdiags(A.sum(axis=1), 0, m, n, format="csr")
-    ).todense()
+    D = sp.sparse.csr_array(sp.sparse.spdiags(A.sum(axis=1), 0, m, n, format="csr")).todense()
 
     P = np.linalg.inv(D) @ A
 
