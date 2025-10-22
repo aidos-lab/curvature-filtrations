@@ -1,6 +1,7 @@
 import warnings
 import networkx as nx
 import numpy as np
+from joblib import Parallel, delayed
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -8,7 +9,7 @@ import numpy as np
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def resistance_curvature(G, weight=None):
+def resistance_curvature(G, weight=None, n_jobs=-1):
     """Calculate Resistance Curvature of a graph.
 
     This function calculates the resistance curvature of a graph,
@@ -23,6 +24,10 @@ def resistance_curvature(G, weight=None):
         Name of an edge attribute that is supposed to be used as an edge
         weight. If None, unweighted curvature is calculated.
 
+    n_jobs : int, optional
+        Number of parallel jobs. -1 means use all available cores.
+        Set to 1 for sequential processing. Default is -1.
+
     Returns
     -------
     np.array
@@ -34,25 +39,33 @@ def resistance_curvature(G, weight=None):
         # Generate Matrix of Resistance Distances and Node Reference
         # Dictionary
         R, node_to_index = _pairwise_resistances(G, weight=weight)
-    curvature = []
 
-    for edge in G.edges():
-        source, target = edge
-        source_curvature = _node_resistance_curvature(
-            G, source, weight=weight, R=R, node_to_index=node_to_index
-        )
-        target_curvature = _node_resistance_curvature(
-            G, target, weight=weight, R=R, node_to_index=node_to_index
-        )
+    # Convert to list for parallel processing
+    edges = list(G.edges())
 
-        edge_curvature = (
-            2
-            * (source_curvature + target_curvature)
-            / R[node_to_index[source], node_to_index[target]]
-        )
-        curvature.append(edge_curvature)
+    # Parallel computation
+    curvature_values = Parallel(n_jobs=n_jobs)(
+        delayed(_compute_single_edge_resistance_curvature)(G, edge, weight, R, node_to_index)
+        for edge in edges
+    )
 
-    return np.asarray(curvature)
+    return np.asarray(curvature_values)
+
+
+def _compute_single_edge_resistance_curvature(G, edge, weight, R, node_to_index):
+    """Compute resistance curvature for a single edge (for parallel execution)."""
+    source, target = edge
+    source_curvature = _node_resistance_curvature(
+        G, source, weight=weight, R=R, node_to_index=node_to_index
+    )
+    target_curvature = _node_resistance_curvature(
+        G, target, weight=weight, R=R, node_to_index=node_to_index
+    )
+
+    edge_curvature = (
+        2 * (source_curvature + target_curvature) / R[node_to_index[source], node_to_index[target]]
+    )
+    return edge_curvature
 
 
 def _pairwise_resistances(G, weight=None):
@@ -91,9 +104,7 @@ def _pairwise_resistances(G, weight=None):
     R = np.zeros(shape=(n, n))
 
     # List of connected components with original node order
-    components = list(
-        [G.subgraph(c).copy() for c in nx.connected_components(G)]
-    )
+    components = list([G.subgraph(c).copy() for c in nx.connected_components(G)])
     for C in components:
         for source, target in C.edges():
             i, j = node_to_index[source], node_to_index[target]
@@ -110,9 +121,7 @@ def _pairwise_resistances(G, weight=None):
     return R, node_to_index
 
 
-def _node_resistance_curvature(
-    G, node, weight=None, R=None, node_to_index=None
-):
+def _node_resistance_curvature(G, node, weight=None, R=None, node_to_index=None):
     """Calculate Resistance Curvature of a given node in a graph 'G'.
 
     This function calculates the resistance curvature of only

@@ -48,17 +48,13 @@ def regular_homology_dims():
 @pytest.fixture
 def toy_diagram1():
     """Toy persistence diagram with 0D and 1D homology features."""
-    return [
-        {0: np.array([[0, 1], [1, 2]]), 1: np.array([[0.5, 2.0], [1.5, 2.5]])}
-    ]
+    return [{0: np.array([[0, 1], [1, 2]]), 1: np.array([[0.5, 2.0], [1.5, 2.5]])}]
 
 
 @pytest.fixture
 def toy_diagram2():
     """Toy persistence diagram with 0D and 1D homology features."""
-    return [
-        {0: np.array([[0, 1], [1, 3]]), 1: np.array([[0.5, 2.1], [1.5, 3.0]])}
-    ]
+    return [{0: np.array([[0, 1], [1, 3]]), 1: np.array([[0.5, 2.1], [1.5, 3.0]])}]
 
 
 @pytest.fixture

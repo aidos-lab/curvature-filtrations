@@ -169,9 +169,7 @@ class Comparator:
     def _setup_distance(self, metric) -> TopologicalDistance:
         """Checks that metric is supported. If so, returns TopologicalDistance subclass associated with the metric."""
         # Check that the metric is supported
-        assert (
-            metric in supported_distances
-        ), f"Metric {metric} is not supported."
+        assert metric in supported_distances, f"Metric {metric} is not supported."
 
         return supported_distances[metric]
 
@@ -197,9 +195,7 @@ class Comparator:
         elif Comparator._is_graph(G):
             return [G]
         else:
-            raise ValueError(
-                "Input must be a networkx.Graph or a list of networkx.Graphs"
-            )
+            raise ValueError("Input must be a networkx.Graph or a list of networkx.Graphs")
 
     @staticmethod
     def _is_distribution(G):

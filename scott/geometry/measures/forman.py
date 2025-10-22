@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+from joblib import Parallel, delayed
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -7,7 +8,7 @@ import numpy as np
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def forman_curvature(G, weight=None):
+def forman_curvature(G, weight=None, n_jobs=-1):
     """Calculate Forman--Ricci curvature of a graph.
 
     This function calculates the Forman--Ricci curvature of a graph,
@@ -32,65 +33,85 @@ def forman_curvature(G, weight=None):
     # This calculation is much more efficient than the weighted one, so
     # we default to it in case there are no weights in the graph.
     if weight is None:
-        return _forman_curvature_unweighted(G)
+        return _forman_curvature_unweighted(G, n_jobs)
     else:
-        return _forman_curvature_weighted(G, weight)
+        return _forman_curvature_weighted(G, weight, n_jobs)
 
 
-def _forman_curvature_unweighted(G):
-    curvature = []
-    for edge in G.edges():
+def _forman_curvature_unweighted(G, n_jobs):
+    # Convert to list for parallel processing
+    edges = list(G.edges())
 
-        source, target = edge
-        source_degree = G.degree(source)
-        target_degree = G.degree(target)
+    # Parallel computation
+    curvature_values = Parallel(n_jobs=n_jobs)(
+        delayed(_compute_single_edge_forman_unweighted)(G, edge) for edge in edges
+    )
 
-        source_neighbours = set(G.neighbors(source))
-        target_neighbours = set(G.neighbors(target))
-
-        n_triangles = len(source_neighbours.intersection(target_neighbours))
-        curvature.append(float(4 - source_degree - target_degree + 3 * n_triangles))
-
-    return np.asarray(curvature)
+    return np.asarray(curvature_values)
 
 
-def _forman_curvature_weighted(G, weight):
+def _forman_curvature_weighted(G, weight, n_jobs):
     has_node_attributes = bool(nx.get_node_attributes(G, weight))
 
-    curvature = []
-    for edge in G.edges:
-        source, target = edge
-        source_weight, target_weight = 1.0, 1.0
+    # Convert to list for parallel processing
+    edges = list(G.edges())
 
-        # Makes checking for duplicate edges easier below. We expect the
-        # source vertex to be the (lexicographically) smaller one.
-        if source > target:
-            source, target = target, source
+    # Parallel computation
+    curvature_values = Parallel(n_jobs=n_jobs)(
+        delayed(_compute_single_edge_forman_weighted)(G, edge, weight, has_node_attributes)
+        for edge in edges
+    )
 
-        if has_node_attributes:
-            source_weight = G.nodes[source][weight]
-            target_weight = G.nodes[target][weight]
+    return np.asarray(curvature_values)
 
-        edge_weight = G[source][target][weight]
 
-        e_curvature = source_weight / edge_weight
-        e_curvature += target_weight / edge_weight
+def _compute_single_edge_forman_unweighted(G, edge):
+    """Compute Forman curvature for a single edge in unweighted graph (for parallel execution)."""
+    source, target = edge
+    source_degree = G.degree(source)
+    target_degree = G.degree(target)
 
-        parallel_edges = list(G.edges(source, data=weight)) + list(G.edges(target, data=weight))
+    source_neighbours = set(G.neighbors(source))
+    target_neighbours = set(G.neighbors(target))
 
-        for u, v, w in parallel_edges:
-            if u > v:
-                u, v = v, u
+    n_triangles = len(source_neighbours.intersection(target_neighbours))
+    return float(4 - source_degree - target_degree + 3 * n_triangles)
 
-            if (u, v) == edge:
-                continue
-            else:
-                e_curvature -= w / np.sqrt(edge_weight * w)
 
-        e_curvature *= edge_weight
-        curvature.append(float(e_curvature))
+def _compute_single_edge_forman_weighted(G, edge, weight, has_node_attributes):
+    """Compute Forman curvature for a single edge in weighted graph (for parallel execution)."""
+    source, target = edge
+    source_weight, target_weight = 1.0, 1.0
 
-    return np.asarray(curvature)
+    # Makes checking for duplicate edges easier below. We expect the
+    # source vertex to be the (lexicographically) smaller one.
+    # Use string representation for comparison to handle mixed node types
+    if str(source) > str(target):
+        source, target = target, source
+
+    if has_node_attributes:
+        source_weight = G.nodes[source][weight]
+        target_weight = G.nodes[target][weight]
+
+    edge_weight = G[source][target][weight]
+
+    e_curvature = source_weight / edge_weight
+    e_curvature += target_weight / edge_weight
+
+    parallel_edges = list(G.edges(source, data=weight)) + list(G.edges(target, data=weight))
+
+    for u, v, w in parallel_edges:
+        # Use string representation for comparison to handle mixed node types
+        if str(u) > str(v):
+            u, v = v, u
+
+        if (u, v) == edge:
+            continue
+        else:
+            e_curvature -= w / np.sqrt(edge_weight * w)
+
+    e_curvature *= edge_weight
+    return float(e_curvature)
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -98,9 +119,10 @@ def _forman_curvature_weighted(G, weight):
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def balanced_forman_curvature(G, weight=None):
+def balanced_forman_curvature(G, weight=None, n_jobs=-1):
     """
     Compute the balanced Forman curvature for each edge in a NetworkX graph.
+    Defaults to parallel processing.
 
     Parameters
     ----------
@@ -108,6 +130,9 @@ def balanced_forman_curvature(G, weight=None):
         Input graph (weighted or unweighted).
     weight : str or None
         Name of the edge weight attribute. If None, the graph is treated as unweighted.
+    n_jobs : int, optional
+        Number of parallel jobs. -1 means use all available cores.
+        Set to 1 for sequential processing. Default is -1.
 
     Returns
     -------
@@ -118,42 +143,38 @@ def balanced_forman_curvature(G, weight=None):
     ----------
     Topping, Jake, et al. "Understanding Over-Squashing and Bottlenecks on Graphs via Curvature." International Conference on Learning Representations. 2022.
     """
-    # Compute adjacency matrix and degree information
-    A, d_in, d_out = _prepare_graph_data(G, weight)
+    A, d_in, d_out, node_to_index = _prepare_graph_data(G, weight)
+    A_squared = np.matmul(A, A)
 
-    # Compute curvature values
-    curvature_values = [_compute_edge_curvature(A, d_in, d_out, u, v) for u, v in G.edges()]
+    # Convert to list for parallel processing
+    edges = list(G.edges())
+
+    # Parallel computation
+    curvature_values = Parallel(n_jobs=n_jobs)(
+        delayed(_compute_single_edge_curvature)(A, A_squared, d_in, d_out, node_to_index, u, v)
+        for u, v in edges
+    )
 
     return np.asarray(curvature_values)
 
 
-def _prepare_graph_data(G, weight):
-    """Prepare weighted adjacency matrix and degree information."""
-    A = nx.to_numpy_array(G, weight=weight)
-    d_in = A.sum(axis=0)  # Weighted in-degrees
-    d_out = A.sum(axis=1)  # Weighted out-degrees
-    return A, d_in, d_out
-
-
-def _compute_edge_curvature(A, d_in, d_out, u, v):
-    """Compute the balanced Forman curvature for a single edge."""
-    i, j = u, v  # Node indices in the adjacency matrix
+def _compute_single_edge_curvature(A, A_squared, d_in, d_out, node_to_index, u, v):
+    """Compute curvature for a single edge (for parallel execution)."""
+    i, j = node_to_index[u], node_to_index[v]
     weight = A[i, j]
 
-    if weight == 0:  # Safeguard against missing edges
+    if weight == 0:
         return 0
 
-    d_max, d_min = max(d_in[i], d_out[j]), min(d_in[i], d_out[j])
+    d_max = max(d_in[i], d_out[j])
+    d_min = min(d_in[i], d_out[j])
 
     if d_max * d_min == 0:
         return 0
 
-    sharp_ij, lambda_ij = _compute_sharpness_and_lambda(A, i, j, weight)
+    sharp_ij, lambda_ij = _compute_sharpness_and_lambda_optimized(A, A_squared, i, j, weight)
 
-    # Balanced Forman Curvature
-    curvature = (
-        (2 / d_max) + (2 / d_min) - 2 + (2 / d_max + 1 / d_min) * np.matmul(A, A)[i, j] * weight
-    )
+    curvature = (2 / d_max) + (2 / d_min) - 2 + (2 / d_max + 1 / d_min) * A_squared[i, j] * weight
 
     if lambda_ij > 0:
         curvature += sharp_ij / (d_max * lambda_ij)
@@ -161,27 +182,35 @@ def _compute_edge_curvature(A, d_in, d_out, u, v):
     return curvature
 
 
-def _compute_sharpness_and_lambda(A, i, j, weight):
-    """Compute the sharpness and lambda values for an edge."""
-    N = A.shape[0]
+def _prepare_graph_data(G, weight):
+    """Prepare weighted adjacency matrix and degree information."""
+    A = nx.to_numpy_array(G, weight=weight)
+    d_in = A.sum(axis=0)  # Weighted in-degrees
+    d_out = A.sum(axis=1)  # Weighted out-degrees
+
+    # Create node to index mapping
+    node_to_index = {node: i for i, node in enumerate(G.nodes())}
+
+    return A, d_in, d_out, node_to_index
+
+
+def _compute_sharpness_and_lambda_optimized(A, A_squared, i, j, weight):
+    """Optimized sharpness computation using precomputed A_squared."""
     sharp_ij = 0
     lambda_ij = 0
 
-    for k in range(N):
-        TMP_1 = A[k, j] * (_second_power(A, i, k) - A[i, k]) * weight
-        TMP_2 = A[i, k] * (_second_power(A, k, j) - A[k, j]) * weight
+    # Vectorized computation over all k
+    TMP_1 = A[:, j] * (A_squared[i, :] - A[i, :]) * weight
+    TMP_2 = A[i, :] * (A_squared[:, j] - A[:, j]) * weight
 
-        if TMP_1 > 0:
-            sharp_ij += 1
-            lambda_ij = max(lambda_ij, TMP_1)
+    # Count positive values and find max
+    positive_1 = TMP_1 > 0
+    positive_2 = TMP_2 > 0
 
-        if TMP_2 > 0:
-            sharp_ij += 1
-            lambda_ij = max(lambda_ij, TMP_2)
+    sharp_ij = np.sum(positive_1) + np.sum(positive_2)
+
+    max_1 = np.max(TMP_1) if np.any(positive_1) else 0
+    max_2 = np.max(TMP_2) if np.any(positive_2) else 0
+    lambda_ij = max(max_1, max_2)
 
     return sharp_ij, lambda_ij
-
-
-def _second_power(A, i, k):
-    """Compute the second power of the adjacency matrix."""
-    return np.matmul(A, A)[i, k]

@@ -98,9 +98,7 @@ class TestComparator:
         assert comp.descriptor2 is not None
         comp.fit(graph_distribution1, graph_distribution2)
         comp = Comparator(measure="ollivier_ricci_curvature")
-        comp.fit(
-            graph, graph2, metric="landscape", num_functions=8, resolution=100
-        )
+        comp.fit(graph, graph2, metric="landscape", num_functions=8, resolution=100)
         assert comp.descriptor1.num_functions == 8
         assert comp.descriptor1.resolution == 100
 

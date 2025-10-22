@@ -45,9 +45,7 @@ def calculate_persistent_homology(G, k=3):
     diagrams = []
 
     for dimension in range(k + 1):
-        diagram = [
-            (c, d) for dim, (c, d) in persistence_pairs if dim == dimension
-        ]
+        diagram = [(c, d) for dim, (c, d) in persistence_pairs if dim == dimension]
 
         diagrams.append(diagram)
 
@@ -87,9 +85,7 @@ def propagate_node_attribute_to_edges(G, attribute, pooling_fn=max):
     for edge in G.edges(data=False):
         source, target = edge
 
-        edge_attributes[edge] = pooling_fn(
-            node_attributes[source], node_attributes[target]
-        )
+        edge_attributes[edge] = pooling_fn(node_attributes[source], node_attributes[target])
 
     nx.set_edge_attributes(G, edge_attributes, name=attribute)
 
@@ -124,9 +120,7 @@ def propagate_edge_attribute_to_nodes(G, attribute, pooling_fn=np.sum):
         node_attributes[source].append(data[attribute])
         node_attributes[target].append(data[attribute])
 
-    node_attributes = {
-        node: pooling_fn(values) for node, values in node_attributes.items()
-    }
+    node_attributes = {node: pooling_fn(values) for node, values in node_attributes.items()}
 
     nx.set_node_attributes(G, node_attributes, name=attribute)
 

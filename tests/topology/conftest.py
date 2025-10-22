@@ -10,17 +10,13 @@ from scott.kilt import KILT
 @pytest.fixture
 def toy_diagram1():
     """Toy persistence diagram with 0D and 1D homology features."""
-    return [
-        {0: np.array([[0, 1], [1, 2]]), 1: np.array([[0.5, 2.0], [1.5, 2.5]])}
-    ]
+    return [{0: np.array([[0, 1], [1, 2]]), 1: np.array([[0.5, 2.0], [1.5, 2.5]])}]
 
 
 @pytest.fixture
 def toy_diagram2():
     """Toy persistence diagram with 0D and 1D homology features."""
-    return [
-        {0: np.array([[0, 1], [1, 3]]), 1: np.array([[0.5, 2.1], [1.5, 3.0]])}
-    ]
+    return [{0: np.array([[0, 1], [1, 3]]), 1: np.array([[0.5, 2.1], [1.5, 3.0]])}]
 
 
 @pytest.fixture
@@ -78,9 +74,7 @@ def toy_landscape2(toy_pd2):
 @pytest.fixture
 def setup_landscape_distance(toy_pd, toy_pd2):
     """Fixture to set up the LandscapeDistance instance and sample diagrams."""
-    landscape_distance = LandscapeDistance(
-        toy_pd, toy_pd2, norm=2, resolution=1000
-    )
+    landscape_distance = LandscapeDistance(toy_pd, toy_pd2, norm=2, resolution=1000)
     return landscape_distance
 
 

@@ -7,6 +7,9 @@ on:
       - main
     tags:
       - "*" # Optional: also trigger on new tags
+  pull_request:
+    branches:
+      - main
   workflow_dispatch: # Allow manual runs from GitHub UI
 
 # Restrict permissions for CI jobs.
@@ -19,33 +22,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3 # Use the correct version of checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12.5"
-          cache: "pip"
+          python-version: "3.12"
 
-      - name: Install Poetry
+      - name: Install uv
         run: |
-          pip install poetry
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
-          poetry install --no-interaction
+          uv sync --all-extras
 
       - name: Build Sphinx documentation
         run: |
-          poetry run sphinx-build -b html docs/source docs/build/html
+          uv run sphinx-build -b html docs/source docs/build/html
 
       - name: Upload documentation artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs/build/html
 
   # Deploy the artifact to GitHub Pages.
   deploy:
+    # Only deploy on pushes to main, not on PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build # Deploy only after the 'build' job succeeds
     runs-on: ubuntu-latest
     permissions:
@@ -57,5 +63,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          path: docs/build/html # Path where the Sphinx docs are stored
