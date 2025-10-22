@@ -209,6 +209,7 @@ version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "gudhi" },
+    { name = "joblib" },
     { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "networkx", version = "3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pot" },
@@ -229,6 +230,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=25.9.0" },
     { name = "furo", marker = "extra == 'docs'", specifier = ">=2024.8.6" },
     { name = "gudhi", specifier = ">=3.11.0" },
+    { name = "joblib", specifier = ">=1.5.2" },
     { name = "networkx", specifier = ">=3.4.2" },
     { name = "pot", specifier = ">=0.9.5" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.3" },
