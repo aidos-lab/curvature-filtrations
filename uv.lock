@@ -217,19 +217,16 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
+    { name = "black" },
     { name = "pytest" },
 ]
 docs = [
     { name = "furo" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "black" },
-]
-
 [package.metadata]
 requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=25.9.0" },
     { name = "furo", marker = "extra == 'docs'", specifier = ">=2024.8.6" },
     { name = "gudhi", specifier = ">=3.11.0" },
     { name = "networkx", specifier = ">=3.4.2" },
@@ -238,9 +235,6 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.5.2" },
 ]
 provides-extras = ["dev", "docs"]
-
-[package.metadata.requires-dev]
-dev = [{ name = "black", specifier = ">=25.9.0" }]
 
 [[package]]
 name = "docutils"
