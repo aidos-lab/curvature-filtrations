@@ -43,6 +43,10 @@ class KILT:
         Here, `G` refers to the graph, `node` to the node whose measure is to be calculated, and `node_to_index` to the lookup map that maps a node identifier to a zero-based index.
 
         If `prob_fn` is set, providing `alpha` will not have an effect.
+
+    n_jobs : int, default=-1
+        Number of parallel jobs for curvature computation. -1 means use all available cores.
+        Set to 1 for sequential processing. Applies to all curvature measures that support parallel processing.
     """
 
     def __init__(
@@ -51,6 +55,7 @@ class KILT:
         weight=None,
         alpha=0.0,
         prob_fn=None,
+        n_jobs=-1,
     ) -> None:
         """Creates an instance of the KILT class with the desired specifications for the method of computing curvature in a graph."""
 
@@ -64,6 +69,7 @@ class KILT:
         self.weight = weight
         self.alpha = alpha
         self.prob_fn = prob_fn
+        self.n_jobs = n_jobs
 
         # Initialize graph
         self._G = None
@@ -83,7 +89,7 @@ class KILT:
         self._G = graph.copy()
 
     @property
-    def curvature(self) -> np.array:
+    def curvature(self) -> Optional[np.ndarray]:
         """Getter method for the curvature values of the graph."""
         if self.G is None:
             return None
@@ -227,7 +233,7 @@ class KILT:
     #  │ Helper Functions                                         │
     #  ╰──────────────────────────────────────────────────────────╯
 
-    def _compute_curvature(self, graph) -> np.array:
+    def _compute_curvature(self, graph) -> np.ndarray:
         """Helper function for calculating the edge curvature values for the given graph according to the specifications of the KILT object (i.e. measure, weight, etc.)."""
         curvature_fn = getattr(measures, self.measure)
         if self.measure == "ollivier_ricci_curvature":
@@ -237,10 +243,11 @@ class KILT:
                 self.alpha,
                 self.weight,
                 prob_fn=self.prob_fn,
+                n_jobs=self.n_jobs,
             )
         else:
             # Forman and Resistance measures only require graph and optional weight
-            return curvature_fn(graph, self.weight)
+            return curvature_fn(graph, self.weight, n_jobs=self.n_jobs)
 
     def _curvature_values_exist(self) -> bool:
         """Checks whether curvature values have already been computed and stored in the KILT object's curvature attribute."""
@@ -253,7 +260,7 @@ class KILT:
     @staticmethod
     def _unpack_curvature_values(
         dict,
-    ) -> np.array:
+    ) -> np.ndarray:
         """Converts the curvature values from a dictionary to a numpy array."""
         return np.array(list(dict.values()))
 
@@ -275,4 +282,4 @@ class KILT:
 
     def __repr__(self) -> str:
         """Return a string representation of the KILT object."""
-        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn})"
+        return f"KILT({self.measure}, {self.weight}, {self.alpha}, {self.prob_fn}, {self.n_jobs})"

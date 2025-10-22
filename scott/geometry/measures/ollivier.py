@@ -3,6 +3,7 @@ import ot
 import networkx as nx
 import numpy as np
 import scipy as sp
+from joblib import Parallel, delayed
 
 
 #  ╭──────────────────────────────────────────────────────────╮
@@ -10,7 +11,7 @@ import scipy as sp
 #  ╰──────────────────────────────────────────────────────────╯
 
 
-def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None) -> np.ndarray:
+def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None, n_jobs=-1) -> np.ndarray:
     """Calculate Ollivier--Ricci curvature for graphs that allows for a custom probability measure.
 
     This function calculates the Ollivier--Ricci curvature of a graph,
@@ -45,6 +46,10 @@ def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None) -> np.ndar
         maps a node identifier to a zero-based index.
 
         If `prob_fn` is set, providing `alpha` will not have an effect.
+
+    n_jobs : int, optional
+        Number of parallel jobs. -1 means use all available cores.
+        Set to 1 for sequential processing. Default is -1.
 
     Returns
     -------
@@ -89,17 +94,26 @@ def ollivier_ricci_curvature(G, alpha=0.0, weight=None, prob_fn=None) -> np.ndar
     # curvature in practice.
     M = nx.floyd_warshall_numpy(G, weight=weight)
 
-    curvature = []
-    for edge in G.edges():
-        source, target = edge
+    # Convert to list for parallel processing
+    edges = list(G.edges())
 
-        mi = measures[node_to_index[source]]
-        mj = measures[node_to_index[target]]
+    # Parallel processing
+    curvature_values = Parallel(n_jobs=n_jobs)(
+        delayed(_compute_single_edge_orc)(measures, node_to_index, M, edge) for edge in edges
+    )
 
-        distance = ot.emd2(mi, mj, M)
-        curvature.append(1.0 - distance)
+    return np.asarray(curvature_values)
 
-    return np.asarray(curvature)
+
+def _compute_single_edge_orc(measures, node_to_index, M, edge):
+    """Compute Ollivier-Ricci curvature for a single edge (for parallel execution)."""
+    source, target = edge
+
+    mi = measures[node_to_index[source]]
+    mj = measures[node_to_index[target]]
+
+    distance = ot.emd2(mi, mj, M)
+    return 1.0 - distance
 
 
 #  ╭──────────────────────────────────────────────────────────╮
