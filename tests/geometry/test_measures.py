@@ -61,3 +61,90 @@ class TestCurvatureMeasures:
         curvatures = resistance_curvature(main_figure_graph)
         assert isinstance(curvatures, np.ndarray)
         assert curvatures.shape == (len(main_figure_graph.edges()),)  # Number of edges in the graph
+
+    # Tests for different node types
+    def test_forman_curvature_different_node_types(
+        self, string_node_graph, mixed_node_graph, tuple_node_graph, weighted_string_graph
+    ):
+        """Test Forman curvature with different node types."""
+        # String nodes
+        curvatures = forman_curvature(string_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(string_node_graph.edges()),)
+
+        # Mixed node types
+        curvatures = forman_curvature(mixed_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(mixed_node_graph.edges()),)
+
+        # Tuple nodes
+        curvatures = forman_curvature(tuple_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(tuple_node_graph.edges()),)
+
+        # Weighted string nodes
+        curvatures = forman_curvature(weighted_string_graph, weight="weight")
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(weighted_string_graph.edges()),)
+
+    def test_ollivier_ricci_curvature_different_node_types(
+        self, string_node_graph, mixed_node_graph, tuple_node_graph
+    ):
+        """Test Ollivier-Ricci curvature with different node types."""
+        # String nodes
+        curvatures = ollivier_ricci_curvature(string_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(string_node_graph.edges()),)
+
+        # Mixed node types
+        curvatures = ollivier_ricci_curvature(mixed_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(mixed_node_graph.edges()),)
+
+        # Tuple nodes
+        curvatures = ollivier_ricci_curvature(tuple_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(tuple_node_graph.edges()),)
+
+    def test_balanced_forman_curvature_different_node_types(
+        self, string_node_graph, mixed_node_graph, tuple_node_graph, weighted_string_graph
+    ):
+        """Test balanced Forman curvature with different node types."""
+        # String nodes
+        curvatures = balanced_forman_curvature(string_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(string_node_graph.edges()),)
+
+        # Mixed node types
+        curvatures = balanced_forman_curvature(mixed_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(mixed_node_graph.edges()),)
+
+        # Tuple nodes
+        curvatures = balanced_forman_curvature(tuple_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(tuple_node_graph.edges()),)
+
+        # Weighted string nodes
+        curvatures = balanced_forman_curvature(weighted_string_graph, weight="weight")
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(weighted_string_graph.edges()),)
+
+    def test_resistance_curvature_different_node_types(
+        self, string_node_graph, mixed_node_graph, tuple_node_graph
+    ):
+        """Test resistance curvature with different node types."""
+        # String nodes
+        curvatures = resistance_curvature(string_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(string_node_graph.edges()),)
+
+        # Mixed node types
+        curvatures = resistance_curvature(mixed_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(mixed_node_graph.edges()),)
+
+        # Tuple nodes
+        curvatures = resistance_curvature(tuple_node_graph)
+        assert isinstance(curvatures, np.ndarray)
+        assert curvatures.shape == (len(tuple_node_graph.edges()),)

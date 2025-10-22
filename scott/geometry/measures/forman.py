@@ -64,7 +64,8 @@ def _forman_curvature_weighted(G, weight):
 
         # Makes checking for duplicate edges easier below. We expect the
         # source vertex to be the (lexicographically) smaller one.
-        if source > target:
+        # Use string representation for comparison to handle mixed node types
+        if str(source) > str(target):
             source, target = target, source
 
         if has_node_attributes:
@@ -79,7 +80,8 @@ def _forman_curvature_weighted(G, weight):
         parallel_edges = list(G.edges(source, data=weight)) + list(G.edges(target, data=weight))
 
         for u, v, w in parallel_edges:
-            if u > v:
+            # Use string representation for comparison to handle mixed node types
+            if str(u) > str(v):
                 u, v = v, u
 
             if (u, v) == edge:
@@ -119,10 +121,12 @@ def balanced_forman_curvature(G, weight=None):
     Topping, Jake, et al. "Understanding Over-Squashing and Bottlenecks on Graphs via Curvature." International Conference on Learning Representations. 2022.
     """
     # Compute adjacency matrix and degree information
-    A, d_in, d_out = _prepare_graph_data(G, weight)
+    A, d_in, d_out, node_to_index = _prepare_graph_data(G, weight)
 
     # Compute curvature values
-    curvature_values = [_compute_edge_curvature(A, d_in, d_out, u, v) for u, v in G.edges()]
+    curvature_values = [
+        _compute_edge_curvature(A, d_in, d_out, node_to_index, u, v) for u, v in G.edges()
+    ]
 
     return np.asarray(curvature_values)
 
@@ -132,12 +136,16 @@ def _prepare_graph_data(G, weight):
     A = nx.to_numpy_array(G, weight=weight)
     d_in = A.sum(axis=0)  # Weighted in-degrees
     d_out = A.sum(axis=1)  # Weighted out-degrees
-    return A, d_in, d_out
+
+    # Create node to index mapping
+    node_to_index = {node: i for i, node in enumerate(G.nodes())}
+
+    return A, d_in, d_out, node_to_index
 
 
-def _compute_edge_curvature(A, d_in, d_out, u, v):
+def _compute_edge_curvature(A, d_in, d_out, node_to_index, u, v):
     """Compute the balanced Forman curvature for a single edge."""
-    i, j = u, v  # Node indices in the adjacency matrix
+    i, j = node_to_index[u], node_to_index[v]  # Convert node identifiers to matrix indices
     weight = A[i, j]
 
     if weight == 0:  # Safeguard against missing edges
