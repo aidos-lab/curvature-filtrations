@@ -1,6 +1,6 @@
 [project]
 name = "curvature-filtrations"
-version = "0.1.1"
+version = "0.1.2"
 description = "SCOTT: Synthesizing Curvature Operations and Topology Tools. Use curvature filtrations for graphs and graph distributions!"
 authors = [
     { name = "Jeremy Wayland", email = "jeremy.don.wayland@gmail.com" },
