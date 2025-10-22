@@ -231,7 +231,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "furo", marker = "extra == 'docs'", specifier = ">=2024.8.6" },
-    { name = "gudhi", specifier = ">=3.10.1" },
+    { name = "gudhi", specifier = ">=3.11.0" },
     { name = "networkx", specifier = ">=3.4.2" },
     { name = "pot", specifier = ">=0.9.5" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.3" },
