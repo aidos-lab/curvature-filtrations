@@ -34,8 +34,3 @@ packages = ["scott"]
 
 [tool.black]
 line-length = 100
-
-[dependency-groups]
-dev = [
-    "black>=25.9.0",
-]
