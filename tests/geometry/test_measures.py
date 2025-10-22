@@ -64,7 +64,11 @@ class TestCurvatureMeasures:
 
     # Tests for different node types
     def test_forman_curvature_different_node_types(
-        self, string_node_graph, mixed_node_graph, tuple_node_graph, weighted_string_graph
+        self,
+        string_node_graph,
+        mixed_node_graph,
+        tuple_node_graph,
+        weighted_string_graph,
     ):
         """Test Forman curvature with different node types."""
         # String nodes
@@ -107,7 +111,11 @@ class TestCurvatureMeasures:
         assert curvatures.shape == (len(tuple_node_graph.edges()),)
 
     def test_balanced_forman_curvature_different_node_types(
-        self, string_node_graph, mixed_node_graph, tuple_node_graph, weighted_string_graph
+        self,
+        string_node_graph,
+        mixed_node_graph,
+        tuple_node_graph,
+        weighted_string_graph,
     ):
         """Test balanced Forman curvature with different node types."""
         # String nodes
@@ -148,3 +156,34 @@ class TestCurvatureMeasures:
         curvatures = resistance_curvature(tuple_node_graph)
         assert isinstance(curvatures, np.ndarray)
         assert curvatures.shape == (len(tuple_node_graph.edges()),)
+
+    def test_parallelization_consistency(self, weighted_string_graph):
+        """Test that parallel and serial computations yield the same results for all curvature measures."""
+
+        # Test Forman curvature
+        serial_curvatures = forman_curvature(weighted_string_graph, n_jobs=1)
+        parallel_curvatures = forman_curvature(weighted_string_graph, n_jobs=2)
+        assert np.allclose(
+            serial_curvatures, parallel_curvatures
+        ), "Forman curvature parallel/serial mismatch"
+
+        # Test Ollivier-Ricci curvature
+        serial_curvatures = ollivier_ricci_curvature(weighted_string_graph, n_jobs=1)
+        parallel_curvatures = ollivier_ricci_curvature(weighted_string_graph, n_jobs=2)
+        assert np.allclose(
+            serial_curvatures, parallel_curvatures
+        ), "Ollivier-Ricci curvature parallel/serial mismatch"
+
+        # Test balanced Forman curvature
+        serial_curvatures = balanced_forman_curvature(weighted_string_graph, n_jobs=1)
+        parallel_curvatures = balanced_forman_curvature(weighted_string_graph, n_jobs=2)
+        assert np.allclose(
+            serial_curvatures, parallel_curvatures
+        ), "Balanced Forman curvature parallel/serial mismatch"
+
+        # Test resistance curvature
+        serial_curvatures = resistance_curvature(weighted_string_graph, n_jobs=1)
+        parallel_curvatures = resistance_curvature(weighted_string_graph, n_jobs=2)
+        assert np.allclose(
+            serial_curvatures, parallel_curvatures
+        ), "Resistance curvature parallel/serial mismatch"
