@@ -1,6 +1,6 @@
 import gudhi as gd
 import numpy as np
-from typing import List
+from typing import List, Dict
 from scott.topology.distances.base import TopologicalDistance
 from scott.topology.representations import PersistenceDiagram, PersistenceImage
 
@@ -135,39 +135,59 @@ class ImageDistance(TopologicalDistance):
         return images
 
     def _average_image(self, images: List[PersistenceImage]) -> PersistenceImage:
-        """Computes the average persistence image given multiple persistence images."""
-        avg_pixels = {}
+        """Compute and return the average persistence image across multiple images."""
+        avg_image = ImageDistance._initialize_average_image(images)
+        ImageDistance._accumulate_image_pixels(images, avg_image)
+        ImageDistance._normalize_image(avg_image, len(images))
+        return ImageDistance._create_average_image_object(images, avg_image)
 
-        # sum up pixel values across all images
-        for img in images:
-            for dim, pixels in img.pixels.items():
-                # if dim not yet instantiated in avg_image, create np.array of 0s with correct length
-                if dim not in avg_pixels:
-                    avg_pixels[dim] = np.zeros_like(pixels)
-                # add pixel values to existing pixel values
-                avg_pixels[dim] += pixels
+    @staticmethod
+    def _initialize_average_image(
+        images: List[PersistenceImage],
+    ) -> Dict[int, np.ndarray]:
+        """Initialize an average image dictionary with zero arrays."""
+        avg_image = {}
+        for dim in images[0].pixels.keys():
+            avg_image[dim] = np.zeros_like(images[0].pixels[dim])
+        return avg_image
 
-        # divide pixel values by # of images
-        for dim in avg_pixels:
-            avg_pixels[dim] /= len(images)
+    @staticmethod
+    def _accumulate_image_pixels(
+        images: List[PersistenceImage],
+        avg_image: Dict[int, np.ndarray],
+    ) -> None:
+        """Accumulate image pixels into the average image."""
+        for image in images:
+            for dim, pixels in image.pixels.items():
+                avg_image[dim] += pixels
 
-        # create a PersistenceImage to return
+    @staticmethod
+    def _normalize_image(
+        avg_image: Dict[int, np.ndarray],
+        num_images: int,
+    ) -> None:
+        """Normalize the average image by the number of images."""
+        for dim in avg_image:
+            avg_image[dim] /= num_images
+
+    @staticmethod
+    def _create_average_image_object(
+        images: List[PersistenceImage],
+        avg_image: Dict[int, np.ndarray],
+    ) -> PersistenceImage:
+        """Create and return a PersistenceImage object from the average image."""
         avg_img = PersistenceImage(
-            homology_dims=list(avg_pixels.keys()),
-            bandwidth=self.bandwidth,
-            weight=self.weight,
-            resolution=self.resolution,
+            homology_dims=list(avg_image.keys()),
+            bandwidth=images[0].bandwidth,
+            weight=images[0].weight,
+            resolution=images[0].resolution,
         )
-
-        # add avg. image values to avg. PersistenceImage object
-        avg_img.pixels = avg_pixels
-
+        avg_img.pixels = avg_image
         return avg_img
 
     # TODO: check that weight and other parameters are the same between images
-    def _subtract_images(
-        self, image1: PersistenceImage, image2: PersistenceImage
-    ) -> PersistenceImage:
+    @staticmethod
+    def _subtract_images(image1: PersistenceImage, image2: PersistenceImage) -> PersistenceImage:
         """Subtracts two images for each common dimension, returning a PersistenceImage that represents the difference."""
         common_dims = set(image1.homology_dims).intersection(image2.homology_dims)
         assert (
@@ -176,9 +196,9 @@ class ImageDistance(TopologicalDistance):
         # Initialize PersistenceImage to return
         diff_pi = PersistenceImage(
             homology_dims=common_dims,
-            bandwidth=self.bandwidth,
-            weight=self.weight,
-            resolution=self.resolution,
+            bandwidth=image1.bandwidth,
+            weight=image1.weight,
+            resolution=image1.resolution,
         )
         # subtraction
         diff_pixels = {}
